@@ -1,0 +1,8 @@
+PyYAML
+apimoex
+pandas
+requests
+typing
+logging
+pathlib
+python-dotenv
