@@ -1,0 +1,37 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  short:
+    format: "[%(asctime)s] [%(levelname)s]: %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S%z"
+  json:
+    (): logger.json_formatter.JsonFormatter
+    fmt_keys:
+        level: levelname
+        message: message
+        timestamp: timestamp
+        logger: name
+        module: module
+        function: funcName
+        line: lineno
+        thread_name: threadName
+handlers:
+  stdout:
+    class: logging.StreamHandler
+    level: WARNING
+    formatter: short
+    stream: ext://sys.stdout
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: json
+    filename: logs/service.log.jsonl
+    maxBytes: 100000
+    backupCount: 3
+
+loggers:
+  root:
+    level: DEBUG
+    handlers:
+      - stdout
+      - file
