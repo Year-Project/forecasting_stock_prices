@@ -1,0 +1,5 @@
+pandas
+numpy
+plotly
+TA-Lib
+statsmodels
