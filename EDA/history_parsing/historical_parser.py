@@ -5,6 +5,7 @@ from pathlib import Path
 
 import apimoex
 import pandas as pd
+from apimoex.requests import _make_query, _get_short_data
 
 from utils.utils import ROOT_DIR, load_yaml_config
 
@@ -16,7 +17,7 @@ class HistoricalParser:
         self.output_dir = parsed_yaml['output_dir']
         self.output_file = parsed_yaml['output_file']
 
-    def parse(self, interval: int = 24) -> pd.DataFrame:
+    def parse_candles(self, interval: int = 24) -> pd.DataFrame:
         with requests.Session() as session:
             result = pd.DataFrame()
             for stock_name in self.stock_names:
@@ -28,6 +29,28 @@ class HistoricalParser:
 
                 df.set_index('begin', inplace=True)
                 df['name'] = stock_name
+                result = pd.concat([result, df])
+
+        return result
+
+    def _internal_parse_dividends(self, session: requests.Session, security: str) -> list[dict[str, str | int | float]]:
+        url = f"https://iss.moex.com/iss/securities/{security}/dividends.json"
+        table = "dividends"
+        query = _make_query(q=security, table=table)
+        return _get_short_data(session, url, table, query)
+
+    def parse_dividends(self) -> pd.DataFrame:
+        with requests.Session() as session:
+            result = pd.DataFrame()
+            for stock_name in self.stock_names:
+                logging.info(f'begin dividend parsing for share "{stock_name}"')
+
+                df = pd.DataFrame(self._internal_parse_dividends(session, stock_name))
+
+                logging.debug(f'saved {df.shape[0]} rows for share "{stock_name}"')
+
+                df.rename(columns={'secid': 'name', 'registryclosedate': 'date'}, inplace=True)
+                df.set_index('date', inplace=True)
                 result = pd.concat([result, df])
 
         return result
