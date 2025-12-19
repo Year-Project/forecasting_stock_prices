@@ -1,4 +1,5 @@
 import logging.config
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -6,13 +7,16 @@ from dotenv import load_dotenv
 from EDA.history_parsing.historical_parser import HistoricalParser
 from utils.utils import load_yaml_config, ROOT_DIR
 
+LOGGER_CONFIG_PATH = 'logger/config'
+
 
 def setup_logging():
-    logging.config.dictConfig(load_yaml_config("LOGGER_CONF_PATH"))
+    logging.config.dictConfig(load_yaml_config(f'{LOGGER_CONFIG_PATH}/logger_conf.{os.getenv('ENV')}.yaml'))
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv(Path(ROOT_DIR / '.env'))
+    print(f'{LOGGER_CONFIG_PATH}/logger_conf.{os.getenv('ENV')}.yaml')
 
     Path(ROOT_DIR / 'logs').mkdir(parents=True, exist_ok=True)
 

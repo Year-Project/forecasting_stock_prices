@@ -1,4 +1,5 @@
 import logging
+import os
 
 import requests
 from pathlib import Path
@@ -11,8 +12,10 @@ from utils.utils import ROOT_DIR, load_yaml_config
 
 
 class HistoricalParser:
+    CONFIG_PATH = 'EDA/history_parsing/config'
+
     def __init__(self):
-        parsed_yaml = load_yaml_config("HISTORY_PARSER_CONF_PATH")
+        parsed_yaml = load_yaml_config(f'{self.CONFIG_PATH}/history_parser_conf.{os.getenv('ENV')}.yaml')
         self.stock_names = parsed_yaml['stocks']
         self.output_dir = parsed_yaml['output_dir']
         self.output_file = parsed_yaml['output_file']
