@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Postman Service", description="API service to get forecasts for provided ISINs", lifespan=lifespan)
 
-app.include_router(forecast_handler.router, prefix="/postman/v1")
+app.include_router(forecast_handler.router, prefix="/postman")
 app.add_exception_handler(BaseServiceException, service_exception_handler)
 
 if __name__ == "__main__":
