@@ -10,4 +10,4 @@ echo "Running migrations..."
 alembic upgrade head
 
 echo "Starting FastAPI server..."
-exec main:app --host 0.0.0.0 --port ${API_PORT}
+exec uvicorn postman.main:app --host 0.0.0.0 --port ${API_PORT}

@@ -1,0 +1,5 @@
+metrics:
+  - mean
+  - quantile 50%
+  - quantile 95%
+  - quantile 99%

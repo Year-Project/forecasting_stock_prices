@@ -7,12 +7,12 @@ from fastapi import Depends
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from Postman.src.models.ForecastRequest import ForecastRequest, ForecastRequestStatus
-from Postman.src.repositories.forecast_requests_repository import ForecastRequestsRepository
-from Postman.src.schemas.Request.GetForecastRequest import GetForecastRequest
-from Postman.src.schemas.Response.GetForecastResponse import GetForecastResponse
-from Postman.src.schemas.Shared.CachedForecastResponse import CachedForecastResponse
 from kafka.BaseBrokerProducer import BaseBrokerProducer
+from postman.src.models.forecast_request import ForecastRequest, ForecastRequestStatus
+from postman.src.repositories.forecast_requests_repository import ForecastRequestsRepository
+from postman.src.schemas.request.get_forecast_request import GetForecastRequest
+from postman.src.schemas.response.get_forecast_response import GetForecastResponse
+from postman.src.schemas.shared.cached_forecast_response import CachedForecastResponse
 
 
 class ForecastService:
@@ -54,3 +54,6 @@ class ForecastService:
             await broker_producer.send(request)
 
         return response
+
+    async def clear_history(self, session_builder: async_sessionmaker[AsyncSession]):
+        await self._forecast_repository.clear_requests_history(session_builder)

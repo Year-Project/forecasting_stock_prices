@@ -8,34 +8,21 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
 
-from Postman.src.kafka.ForecastRequestProducer import ForecastRequestProducer
+from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
 from db.cache import redis_pool
-from db.registry import DatabaseRegistry
-from Postman.src.handlers.v1 import forecast_handler
-from exceptions.exception_handler import service_exception_handler
-from src.exceptions.exceptions import BaseServiceException
+from postman.src.dependencies import db_registry, set_forecast_request_producer
+from postman.src.handlers.v1 import forecast_handler, requests_info_handler
+from exceptions.exception_handler import service_exception_handler, BaseServiceException
 from utils.utils import load_yaml_config, ROOT_DIR
 
 load_dotenv(Path(ROOT_DIR / ".env"))
 load_dotenv()
 
-LOGGER_CONFIG_PATH = "logger/config"
-
-db_registry = DatabaseRegistry()
+LOGGER_CONFIG_PATH = Path(ROOT_DIR / "logger/config")
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 KAFKA_SECURITY_PROTOCOL = os.getenv("KAFKA_SECURITY_PROTOCOL")
 KAFKA_FORECAST_REQUEST_TOPIC = os.getenv("KAFKA_FORECAST_REQUEST_TOPIC")
-
-forecast_request_producer: ForecastRequestProducer | None = None
-
-
-def get_session_maker(name: str):
-    return db_registry.get(name)
-
-
-def get_forecast_request_producer() -> ForecastRequestProducer | None:
-    return forecast_request_producer
 
 
 @asynccontextmanager
@@ -46,22 +33,26 @@ async def lifespan(app: FastAPI):
             f"{LOGGER_CONFIG_PATH}/logger_conf.{os.getenv('ENV', 'testing')}.yaml"
         )
     )
-    db_registry.register("forecast_requests", os.getenv("ENV"))
+    db_registry.register("forecast_requests", os.getenv("DATABASE_URL"))
 
-    global forecast_request_producer
     producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, security_protocol=KAFKA_SECURITY_PROTOCOL)
+    await producer.start()
+
     forecast_request_producer = ForecastRequestProducer(producer, KAFKA_FORECAST_REQUEST_TOPIC)
+    set_forecast_request_producer(forecast_request_producer)
 
-    yield
-    # app shutdown
-    await redis_pool.disconnect()
-
-    await producer.stop()
+    try:
+        yield
+    finally:
+        # app shutdown
+        await redis_pool.disconnect()
+        await producer.stop()
 
 
 app = FastAPI(title="Postman Service", description="API service to get forecasts for provided ISINs", lifespan=lifespan)
 
 app.include_router(forecast_handler.router, prefix="/postman")
+app.include_router(requests_info_handler.router, prefix="/postman")
 app.add_exception_handler(BaseServiceException, service_exception_handler)
 
 if __name__ == "__main__":

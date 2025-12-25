@@ -3,8 +3,8 @@ from typing import override
 
 from aiokafka import AIOKafkaProducer
 
-from Postman.src.schemas.Request.GetForecastRequest import GetForecastRequest
 from kafka.BaseBrokerProducer import BaseBrokerProducer
+from postman.src.schemas.request.get_forecast_request import GetForecastRequest
 
 
 class ForecastRequestProducer(BaseBrokerProducer[GetForecastRequest]):

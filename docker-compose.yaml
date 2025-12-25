@@ -1,5 +1,5 @@
 include:
-  - ./Postman/docker-compose.yml
+  - ./postman/docker-compose.yaml
 
 services:
   kafka-1:
@@ -14,15 +14,19 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_LISTENERS: CONTROLLER://kafka-1:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka-1:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    healthcheck:
+      test: ["CMD", "nc", "-vz", "localhost:9093"]
+      interval: 5s
+      retries: 12
     volumes:
-      - kafka_data_1:/var/lib/kafka/data
+      - ./kafka-1/data:/var/lib/kafka/data
 
   kafka-2:
     image: apache/kafka-native
@@ -36,15 +40,19 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9094,DOCKER://0.0.0.0:9093
+      KAFKA_LISTENERS: CONTROLLER://kafka-2:9091,HOST://0.0.0.0:9094,DOCKER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9094,DOCKER://kafka-2:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    healthcheck:
+      test: ["CMD", "nc", "-vz", "localhost:9093"]
+      interval: 5s
+      retries: 12
     volumes:
-      - kafka_data_2:/var/lib/kafka/data
+      - ./kafka-2/data:/var/lib/kafka/data
 
   kafka-3:
     image: apache/kafka-native
@@ -58,15 +66,19 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9096,DOCKER://0.0.0.0:9093
+      KAFKA_LISTENERS: CONTROLLER://kafka-3:9091,HOST://0.0.0.0:9096,DOCKER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9096,DOCKER://kafka-3:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    healthcheck:
+      test: ["CMD", "nc", "-vz", "localhost:9093"]
+      interval: 5s
+      retries: 12
     volumes:
-      - kafka_data_3:/var/lib/kafka/data
+      - ./kafka-3/data:/var/lib/kafka/data
 
   kafka-ui:
       image: kafbat/kafka-ui
