@@ -1,0 +1,13 @@
+requests~=2.32.3
+typing~=3.7.4.3
+logging~=0.4.9.6
+uvicorn~=0.38.0
+pydantic~=2.12.4
+sqlalchemy~=2.0.44
+alembic~=1.17.2
+python-dotenv~=1.2.1
+fastapi~=0.121.3
+apimoex~=1.4.0
+psycopg2-binary~=2.9.9
+aiokafka~=0.10.0
+pandas~=2.3.3
