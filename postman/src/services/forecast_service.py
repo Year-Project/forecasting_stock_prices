@@ -24,7 +24,7 @@ class ForecastService:
                             broker_producer: BaseBrokerProducer) -> GetForecastResponse | None:
         request_start = time.perf_counter()
 
-        key_raw = f'{request.isin}#{request.time_frame}#{request.forecast_period}#{request.provide_plot}'
+        key_raw = f'postman:{request.isin}#{request.time_frame}#{request.forecast_period}#{request.provide_plot}'
         key = hashlib.sha256(key_raw.encode()).hexdigest()
 
         cached_forecast = await redis_client.get(key)

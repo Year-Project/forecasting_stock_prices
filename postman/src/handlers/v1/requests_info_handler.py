@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
+from dependencies.dependencies import get_admin_user
 from postman.src.dependencies import get_forecast_requests_session_maker
 from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
 from postman.src.schemas.response.get_forecasts_history_response import GetForecastsHistoryResponse
@@ -10,7 +11,7 @@ from postman.src.schemas.response.get_forecasts_stats_response import GetForecas
 from postman.src.services.forecast_info_service import ForecastInfoService
 from postman.src.services.forecast_service import ForecastService
 
-router = APIRouter(prefix="/info/v1", tags=["forecast_requests_info"])
+router = APIRouter(prefix="/info/v1", tags=["forecast_requests_info"], dependencies=[Depends(get_admin_user)])
 
 
 @router.get("/stats", response_model=GetForecastsStatsResponse)

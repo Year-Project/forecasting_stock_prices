@@ -1,14 +1,8 @@
-from aiokafka import AIOKafkaProducer
-
+from dependencies.dependencies import get_session_maker
 from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
-from db.registry import DatabaseRegistry
 
-db_registry = DatabaseRegistry()
+
 forecast_request_producer: ForecastRequestProducer | None = None
-
-
-def get_session_maker(name: str):
-    return db_registry.get(name).sessionmaker
 
 
 def get_forecast_requests_session_maker():

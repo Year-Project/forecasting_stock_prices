@@ -1,0 +1,42 @@
+services:
+  guard_db:
+    image: postgres:16
+    container_name: guard_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${GUARD_DATABASE_USER}
+      POSTGRES_PASSWORD: ${GUARD_DATABASE_PASSWORD}
+      POSTGRES_DB: ${GUARD_DATABASE_NAME}
+    volumes:
+      - guard_db_data:/var/lib/postgresql/data
+    networks:
+      - internal_network
+
+  guard_service:
+    build:
+      context: ..
+      dockerfile: guard/Dockerfile
+    container_name: guard_service
+    restart: always
+    env_file:
+      - .env
+      - ../.env
+    depends_on:
+      guard_db:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: ${GUARD_DATABASE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - 8001:8000
+    volumes:
+      - ./migrations:/home/guard_admin/app/guard/migrations
+    networks:
+      - public_network
+      - internal_network
+
+volumes:
+  guard_db_data:

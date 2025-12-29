@@ -8,7 +8,7 @@ import apimoex
 import pandas as pd
 from apimoex.requests import _make_query, _get_short_data
 
-from utils.utils import ROOT_DIR, load_yaml_config
+from utils.config_utils import ROOT_DIR, load_yaml_config
 
 
 class HistoricalParser:

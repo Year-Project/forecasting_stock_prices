@@ -1,12 +1,11 @@
 include:
   - ./postman/docker-compose.yaml
+  - ./guard/docker-compose.yaml
 
 services:
   kafka-1:
     image: apache/kafka-native
     container_name: kafka-1
-    ports:
-      - 9092:9092
     env_file:
       - .env
     environment:
@@ -14,9 +13,9 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-      KAFKA_LISTENERS: CONTROLLER://kafka-1:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka-1:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_LISTENERS: CONTROLLER://kafka-1:9091,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka-1:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
@@ -26,13 +25,13 @@ services:
       interval: 5s
       retries: 12
     volumes:
-      - ./kafka-1/data:/var/lib/kafka/data
+      - kafka1_data:/var/lib/kafka/data
+    networks:
+      - internal_network
 
   kafka-2:
     image: apache/kafka-native
     container_name: kafka-2
-    ports:
-      - 9094:9094
     env_file:
       - .env
     environment:
@@ -40,9 +39,9 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-      KAFKA_LISTENERS: CONTROLLER://kafka-2:9091,HOST://0.0.0.0:9094,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9094,DOCKER://kafka-2:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_LISTENERS: CONTROLLER://kafka-2:9091,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka-2:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
@@ -52,13 +51,13 @@ services:
       interval: 5s
       retries: 12
     volumes:
-      - ./kafka-2/data:/var/lib/kafka/data
+      - kafka2_data:/var/lib/kafka/data
+    networks:
+      - internal_network
 
   kafka-3:
     image: apache/kafka-native
     container_name: kafka-3
-    ports:
-      - 9096:9096
     env_file:
       - .env
     environment:
@@ -66,9 +65,9 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-      KAFKA_LISTENERS: CONTROLLER://kafka-3:9091,HOST://0.0.0.0:9096,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9096,DOCKER://kafka-3:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_LISTENERS: CONTROLLER://kafka-3:9091,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka-3:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
@@ -78,7 +77,9 @@ services:
       interval: 5s
       retries: 12
     volumes:
-      - ./kafka-3/data:/var/lib/kafka/data
+      - kafka3_data:/var/lib/kafka/data
+    networks:
+      - internal_network
 
   kafka-ui:
       image: kafbat/kafka-ui
@@ -96,3 +97,30 @@ services:
         - kafka-1
         - kafka-2
         - kafka-3
+      networks:
+        - public_network
+        - internal_network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    volumes:
+      - ./db/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./db/redis/users.acl:/usr/local/etc/redis/users.acl
+      - redis_data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - internal_network
+
+
+volumes:
+  kafka1_data:
+  kafka2_data:
+  kafka3_data:
+  redis_data:
+
+networks:
+  public_network:
+  internal_network:
+    internal: true

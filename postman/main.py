@@ -9,11 +9,12 @@ from fastapi import FastAPI
 import uvicorn
 
 from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
-from db.cache import redis_pool
-from postman.src.dependencies import db_registry, set_forecast_request_producer
+from db.redis.cache import redis_pool
+from postman.src.dependencies import set_forecast_request_producer
+from dependencies.dependencies import db_registry
 from postman.src.handlers.v1 import forecast_handler, requests_info_handler
 from exceptions.exception_handler import service_exception_handler, BaseServiceException
-from utils.utils import load_yaml_config, ROOT_DIR
+from utils.config_utils import load_yaml_config, ROOT_DIR
 
 load_dotenv(Path(ROOT_DIR / ".env"))
 load_dotenv()
@@ -33,7 +34,7 @@ async def lifespan(app: FastAPI):
             f"{LOGGER_CONFIG_PATH}/logger_conf.{os.getenv('ENV', 'testing')}.yaml"
         )
     )
-    db_registry.register("forecast_requests", os.getenv("DATABASE_URL"))
+    db_registry.register("forecast_requests", os.getenv("POSTMAN_DATABASE_URL"))
 
     producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, security_protocol=KAFKA_SECURITY_PROTOCOL)
     await producer.start()

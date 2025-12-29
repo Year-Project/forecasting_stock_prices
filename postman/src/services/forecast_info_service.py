@@ -11,7 +11,7 @@ from postman.src.repositories.forecast_requests_repository import ForecastReques
 from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
 from postman.src.schemas.response.get_forecasts_history_response import GetForecastsHistoryResponse
 from postman.src.schemas.response.get_forecasts_stats_response import GetForecastsStatsResponse
-from utils.utils import load_yaml_config, ROOT_DIR
+from utils.config_utils import load_yaml_config, ROOT_DIR
 
 
 class ForecastInfoService:

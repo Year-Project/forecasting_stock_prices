@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from EDA.history_parsing.historical_parser import HistoricalParser
-from utils.utils import load_yaml_config, ROOT_DIR
+from utils.config_utils import load_yaml_config, ROOT_DIR
 
 LOGGER_CONFIG_PATH = 'logger/config'
 

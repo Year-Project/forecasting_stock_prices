@@ -10,16 +10,19 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
+from utils.config_utils import ROOT_DIR
+
+# ORM MODELS HERE
 from postman.src.models.base import Base
 from postman.src.models.forecast_request import ForecastRequest
-from utils.utils import ROOT_DIR
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 load_dotenv(Path(ROOT_DIR / 'postman/.env'))
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+config.set_main_option("sqlalchemy.url", os.getenv("POSTMAN_DATABASE_URL"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

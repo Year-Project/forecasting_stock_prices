@@ -8,10 +8,13 @@ COPY postman/requirements.txt requirements.txt
 RUN pip3 --no-cache-dir install -r requirements.txt
 
 COPY db ./db
+COPY dependencies ./dependencies
 COPY exceptions ./exceptions
 COPY kafka ./kafka
-COPY utils ./utils
 COPY logger ./logger
+COPY schemas ./schemas
+COPY utils ./utils
+
 
 COPY postman ./postman
 
@@ -26,8 +29,6 @@ ENV PYTHONPATH=/home/postman_admin/app:$PYTHONPATH
 USER postman_admin
 
 WORKDIR /home/postman_admin/app/postman
-
-
 
 EXPOSE 8000
 
