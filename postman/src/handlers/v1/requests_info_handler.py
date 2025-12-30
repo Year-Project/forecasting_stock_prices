@@ -14,18 +14,18 @@ router = APIRouter(prefix="/info/v1", tags=["forecast_requests_info"])
 
 
 @router.get("/stats", response_model=GetForecastsStatsResponse)
-async def get_stats_handler(request: GetForecastsInfoRequest,
-                            forecast_info_service: Annotated[ForecastInfoService, Depends()],
+async def get_stats_handler(forecast_info_service: Annotated[ForecastInfoService, Depends()],
                             forecast_requests_sb: async_sessionmaker[AsyncSession]
-                            = Depends(get_forecast_requests_session_maker)):
+                            = Depends(get_forecast_requests_session_maker),
+                            request: GetForecastsInfoRequest = Depends()):
     return await forecast_info_service.get_stats(forecast_requests_sb, request)
 
 
 @router.get("/history", response_model=GetForecastsHistoryResponse)
-async def get_history_handler(request: GetForecastsInfoRequest,
-                              forecast_info_service: Annotated[ForecastInfoService, Depends()],
+async def get_history_handler(forecast_info_service: Annotated[ForecastInfoService, Depends()],
                               forecast_requests_sb: async_sessionmaker[AsyncSession]
-                              = Depends(get_forecast_requests_session_maker)):
+                              = Depends(get_forecast_requests_session_maker),
+                              request: GetForecastsInfoRequest = Depends()):
     return await forecast_info_service.get_history(forecast_requests_sb, request)
 
 

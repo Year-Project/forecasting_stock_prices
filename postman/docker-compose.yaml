@@ -24,6 +24,8 @@ services:
     depends_on:
       postman_db:
         condition: service_started
+      redis:
+        condition: service_started
       kafka-1:
         condition: service_healthy
       kafka-2:

@@ -2,10 +2,11 @@ import os
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import select, Select, text
+from sqlalchemy import select, Select, text, update
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from postman.src.models.forecast_request import ForecastRequest
+from postman.src.schemas.shared.forecast_request_status import ForecastRequestStatus
 from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
 
 
@@ -65,3 +66,21 @@ class ForecastRequestsRepository:
         async with session_builder() as session:
             async with session.begin():
                 await session.execute(text(f"TRUNCATE TABLE forecast_requests"))
+
+    @staticmethod
+    async def update_request_status(session_builder: async_sessionmaker[AsyncSession], request_id: UUID,
+                                    status: ForecastRequestStatus, error: str | None = None,
+                                    model: str | None = None, duration_ms: float | None = None):
+        values: dict[str, object] = {"status": status, "duration_ms": duration_ms}
+        if error is not None:
+            values["error"] = error
+        if model is not None:
+            values["model"] = model
+
+        async with session_builder() as session:
+            async with session.begin():
+                await session.execute(
+                    update(ForecastRequest)
+                    .where(ForecastRequest.id == request_id)
+                    .values(**values)
+                )

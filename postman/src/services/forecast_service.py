@@ -1,5 +1,5 @@
 import time
-import hashlib
+from uuid import UUID
 
 from typing import Annotated
 
@@ -13,9 +13,13 @@ from postman.src.repositories.forecast_requests_repository import ForecastReques
 from postman.src.schemas.request.get_forecast_request import GetForecastRequest
 from postman.src.schemas.response.get_forecast_response import GetForecastResponse
 from postman.src.schemas.shared.cached_forecast_response import CachedForecastResponse
+from postman.src.schemas.shared.forecast_request_message import ForecastRequestMessage
+from postman.src.services.cache_utils import build_cache_key, build_request_start_key
 
 
 class ForecastService:
+    DEFAULT_USER_ID = UUID(int=0)
+
     def __init__(self, forecast_repository: Annotated[ForecastRequestsRepository, Depends()]):
         self._forecast_repository = forecast_repository
 
@@ -24,8 +28,7 @@ class ForecastService:
                             broker_producer: BaseBrokerProducer) -> GetForecastResponse | None:
         request_start = time.perf_counter()
 
-        key_raw = f'{request.isin}#{request.time_frame}#{request.forecast_period}#{request.provide_plot}'
-        key = hashlib.sha256(key_raw.encode()).hexdigest()
+        key = build_cache_key(request.isin, request.time_frame, request.forecast_period, request.provide_plot)
 
         cached_forecast = await redis_client.get(key)
 
@@ -37,7 +40,9 @@ class ForecastService:
             forecast_request = ForecastRequest(isin=cached_response.isin, time_frame=cached_response.time_frame,
                                                requested_plot=cached_response.provide_plot, model=cached_response.model,
                                                status=ForecastRequestStatus.COMPLETED, used_cache=True,
-                                               duration_ms=time.perf_counter() - request_start)
+                                               duration_ms=time.perf_counter() - request_start,
+                                               user_id=self.DEFAULT_USER_ID,
+                                               error="")
 
             await self._forecast_repository.save_request(session_builder, forecast_request)
 
@@ -45,13 +50,19 @@ class ForecastService:
         else:
             forecast_request = ForecastRequest(isin=request.isin, time_frame=request.time_frame,
                                                requested_plot=request.provide_plot,
-                                               status=ForecastRequestStatus.PENDING, used_cache=False)
+                                               status=ForecastRequestStatus.PENDING, used_cache=False,
+                                               user_id=self.DEFAULT_USER_ID,
+                                               error="")
 
             await self._forecast_repository.save_request(session_builder, forecast_request)
 
-            await redis_client.setex(forecast_request.id, 600, request_start)
+            await redis_client.setex(build_request_start_key(forecast_request.id), 600, request_start)
 
-            await broker_producer.send(request)
+            message = ForecastRequestMessage(
+                request_id=forecast_request.id,
+                **request.model_dump(mode="json"),
+            )
+            await broker_producer.send(message)
 
         return response
 

@@ -14,7 +14,7 @@ from postman.src.services.forecast_service import ForecastService
 router = APIRouter(prefix="/forecasts/v1", tags=["forecasts"])
 
 
-@router.post("/forecast", response_model=GetForecastResponse)
+@router.post("/forecast", response_model=GetForecastResponse | None)
 async def get_forecast_handler(request: GetForecastRequest, response: Response,
                                forecast_service: Annotated[ForecastService, Depends()],
                                forecast_requests_sb: async_sessionmaker[AsyncSession]
