@@ -1,6 +1,8 @@
 include:
   - ./postman/docker-compose.yaml
   - ./guard/docker-compose.yaml
+  - ./magician/docker-compose.yaml
+  - ./scavenger/docker-compose.yaml
 
 services:
   kafka-1:
