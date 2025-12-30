@@ -17,14 +17,8 @@ services:
         condition: service_healthy
       scavenger_service:
         condition: service_started
-    environment:
-      SCAVENGER_BASE_URL: ${SCAVENGER_BASE_URL}
-      SCAVENGER_TIMEOUT_SECS: ${SCAVENGER_TIMEOUT_SECS}
-      API_PORT: ${API_PORT}
-      KAFKA_FORECAST_REQUEST_TOPIC: ${KAFKA_FORECAST_REQUEST_TOPIC}
-      KAFKA_FORECAST_RESPONSE_TOPIC: ${KAFKA_FORECAST_RESPONSE_TOPIC}
     ports:
-      - ${API_PORT}:${API_PORT}
-    volumes:
-      - .:/home/magician_admin/app/magician
-      - ../utils:/home/magician_admin/app/utils
+      - 8002:8000
+    networks:
+      - public_network
+      - internal_network

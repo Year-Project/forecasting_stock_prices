@@ -1,8 +1,8 @@
 services:
   scavenger_service:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: scavenger/Dockerfile
     container_name: scavenger_service
     restart: always
     env_file:
@@ -15,10 +15,8 @@ services:
         condition: service_healthy
       kafka-3:
         condition: service_healthy
-    environment:
-      API_PORT: ${API_PORT}
     ports:
-      - ${API_PORT}:${API_PORT}
-    volumes:
-      - .:/home/appuser/app
-      - ../utils:/home/appuser/app/utils
+      - 8003:8000
+    networks:
+      - public_network
+      - internal_network

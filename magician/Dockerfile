@@ -7,7 +7,15 @@ WORKDIR /home/magician_admin/app
 COPY magician/requirements.txt requirements.txt
 RUN pip3 --no-cache-dir install -r requirements.txt
 
+COPY db ./db
+COPY dependencies ./dependencies
+COPY exceptions ./exceptions
+COPY kafka ./kafka
+COPY logger ./logger
+COPY schemas ./schemas
 COPY utils ./utils
+
+
 COPY magician ./magician
 
 RUN mkdir -p ./magician/logs && chown -R magician_admin:magician_admin ./magician/logs

@@ -1,21 +1,33 @@
 FROM python:3.12-slim
 
-RUN useradd -m appuser -s /bin/bash
+RUN useradd -m scavenger_admin -s /bin/bash
 
-WORKDIR /home/appuser/app
-COPY requirements.txt requirements.txt
+WORKDIR /home/scavenger_admin/app
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY scavenger/requirements.txt requirements.txt
+RUN pip3 --no-cache-dir install -r requirements.txt
 
-COPY . .
+COPY db ./db
+COPY dependencies ./dependencies
+COPY exceptions ./exceptions
+COPY kafka ./kafka
+COPY logger ./logger
+COPY schemas ./schemas
+COPY utils ./utils
 
-RUN mkdir -p ./logs && chown -R appuser:appuser ./logs
-RUN chmod +x ./entrypoint.sh
+COPY scavenger ./scavenger
+
+RUN mkdir -p ./scavenger/logs && chown -R scavenger_admin:scavenger_admin ./scavenger/logs
+
+RUN chmod +x ./scavenger/entrypoint.sh
 RUN apt-get update && rm -rf /var/lib/apt/lists/*
 
-ENV PYTHONPATH=/home/appuser/app:$PYTHONPATH
 
-USER appuser
+ENV PYTHONPATH=/home/scavenger_admin/app:$PYTHONPATH
+
+USER scavenger_admin
+
+WORKDIR /home/scavenger_admin/app/scavenger
 
 EXPOSE 8000
 
