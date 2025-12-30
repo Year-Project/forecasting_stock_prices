@@ -1,11 +1,12 @@
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 
+from dependencies.dependencies import get_admin_user
 from scavenger.services.moex.moex import CandlesService, get_candles_service
 from scavenger.schemas.response.get_candles_response import GetCandlesResponse, Candle
 from scavenger.schemas.request.get_candles_request import GetCandlesRequest
 
-router = APIRouter(prefix="/info/v1", tags=["candles"])
+router = APIRouter(prefix="/info/v1", tags=["candles"], dependencies=[Depends(get_admin_user)])
 
 @router.get("/", response_model=GetCandlesResponse, summary="Get MOEX candles")
 async def get_candles_handler(
