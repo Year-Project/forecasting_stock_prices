@@ -2,10 +2,10 @@ from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import UUID as UUID_ORM, DateTime, String, Boolean, Float, Enum as Enum_ORM
+from sqlalchemy import UUID as UUID_ORM, DateTime, String, Boolean, Float, Enum as Enum_ORM, Integer
 
 from postman.src.models.base import Base
-from postman.src.schemas.shared.forecast_request_status import ForecastRequestStatus
+from schemas.forecast_request_status import ForecastRequestStatus
 
 
 class ForecastRequest(Base):
@@ -13,7 +13,8 @@ class ForecastRequest(Base):
 
     id: Mapped[UUID] = mapped_column(UUID_ORM(as_uuid=True), primary_key=True, default=uuid4)
     isin: Mapped[str] = mapped_column(String, nullable=False, index=True)
-    time_frame: Mapped[str] = mapped_column(String, nullable=False)
+    time_frame_interval: Mapped[int] = mapped_column(Integer, nullable=False)
+    time_frame_unit: Mapped[str] = mapped_column(String, nullable=False)
     requested_plot: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     model: Mapped[str | None] = mapped_column(String, nullable=False, default='Undefined')
     user_id: Mapped[UUID | None] = mapped_column(UUID_ORM(as_uuid=True), nullable=True, index=True)

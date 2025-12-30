@@ -3,13 +3,15 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from postman.src.schemas.shared.forecast_request_status import ForecastRequestStatus
+from schemas.forecast_request_status import ForecastRequestStatus
+from schemas.parsed_timeframe import ParsedTimeframe
 
 
 class ForecastsHistory(BaseModel):
     id: UUID
     isin: str
-    time_frame: str
+    time_frame_interval: int
+    time_frame_unit: str
     requested_plot: bool
     model: str | None
     user_id: UUID
@@ -22,7 +24,7 @@ class ForecastsHistory(BaseModel):
 
 class GetForecastsHistoryResponse(BaseModel):
     isin: str | None = None
-    time_frame: str | None = None
+    time_frame: ParsedTimeframe | None = None
     requested_plot: bool | None = None
     model: str | None = None
     user_id: UUID | None = None

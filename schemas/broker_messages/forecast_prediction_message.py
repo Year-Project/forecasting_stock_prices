@@ -1,15 +1,15 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 from schemas.parsed_timeframe import ParsedTimeframe
 
 
-class CachedForecastResponse(BaseModel):
+class ForecastPredictionMessage(BaseModel):
     isin: str
     forecast_period: int
     time_frame: ParsedTimeframe
     forecast_price: float
-    model: str
-    provide_plot: bool = False
     forecast_confidence: float | None = None
     forecast_plot: str | None = None
 

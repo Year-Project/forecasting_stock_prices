@@ -11,7 +11,9 @@ from postman.src.repositories.forecast_requests_repository import ForecastReques
 from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
 from postman.src.schemas.response.get_forecasts_history_response import GetForecastsHistoryResponse
 from postman.src.schemas.response.get_forecasts_stats_response import GetForecastsStatsResponse
+from postman.src.schemas.shared.forecasts_info_request_parsed import ForecastsInfoRequestParsed
 from utils.config_utils import load_yaml_config, ROOT_DIR
+from utils.parsing_utils import parse_time_frame
 
 
 class ForecastInfoService:
@@ -32,10 +34,13 @@ class ForecastInfoService:
 
     async def get_stats(self, session_builder: async_sessionmaker[AsyncSession],
                         request: GetForecastsInfoRequest) -> GetForecastsStatsResponse:
+        parsed_request = ForecastsInfoRequestParsed.model_validate(request)
 
-        collected_requests = await self._forecast_repository.select_requests(session_builder, request)
+        parsed_request.time_frame = parse_time_frame(request.time_frame)
 
-        response = GetForecastsStatsResponse.model_validate(GetForecastsInfoRequest, from_attributes=True)
+        collected_requests = await self._forecast_repository.select_requests(session_builder, parsed_request)
+
+        response = GetForecastsStatsResponse.model_validate(request, from_attributes=True)
 
         durations = [forecast_request.duration_ms for forecast_request in collected_requests]
 
@@ -47,7 +52,7 @@ class ForecastInfoService:
             elif metric.startswith('quantile'):
                 match = re.search(r'(\d+)%', metric)
 
-                if match:
+                if match is not None:
                     quantile_value = float(match.group(1)) / 100
                     duration_stats[metric] = self.get_quantile_duration(durations, quantile_value)
 
@@ -57,9 +62,13 @@ class ForecastInfoService:
 
     async def get_history(self, session_builder: async_sessionmaker[AsyncSession],
                           request: GetForecastsInfoRequest) -> GetForecastsHistoryResponse:
-        collected_requests = await self._forecast_repository.select_requests(session_builder, request)
+        parsed_request = ForecastsInfoRequestParsed.model_validate(request)
 
-        response = GetForecastsHistoryResponse.model_validate(GetForecastsInfoRequest, from_attributes=True)
+        parsed_request.time_frame = parse_time_frame(request.time_frame)
+
+        collected_requests = await self._forecast_repository.select_requests(session_builder, parsed_request)
+
+        response = GetForecastsHistoryResponse.model_validate(request, from_attributes=True)
 
         response.history = collected_requests
 

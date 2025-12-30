@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from schemas.parsed_timeframe import ParsedTimeframe
 
 
-class GetForecastsStatsResponse(BaseModel):
+class ForecastsInfoRequestParsed(BaseModel):
     isin: str | None = None
     time_frame: ParsedTimeframe | None = None
     requested_plot: bool | None = None
@@ -16,4 +16,3 @@ class GetForecastsStatsResponse(BaseModel):
     used_cache: bool | None = None
     from_date: datetime | None = None
     to_date: datetime | None = None
-    execution_duration: dict[str, float]

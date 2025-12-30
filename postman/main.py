@@ -1,19 +1,25 @@
+import asyncio
 import logging.config
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from aiokafka import AIOKafkaProducer
+from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
 
 from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
-from db.redis.cache import redis_pool
-from postman.src.dependencies import set_forecast_request_producer
+from postman.src.kafka.forecast_publish_producer import ForecastPublishProducer
+from postman.src.kafka.forecast_response_consumer import ForecastResponseConsumer
+from db.redis.cache import redis_pool, create_redis_client
+from postman.src.dependencies import set_forecast_request_producer, set_forecast_publish_producer, \
+    set_forecast_response_consumer, get_forecast_requests_session_maker
 from dependencies.dependencies import db_registry
 from postman.src.handlers.v1 import forecast_handler, requests_info_handler
 from exceptions.exception_handler import service_exception_handler, BaseServiceException
+from postman.src.repositories.forecast_requests_repository import ForecastRequestsRepository
+from postman.src.services.forecast_service import ForecastService
 from utils.config_utils import load_yaml_config, ROOT_DIR
 
 load_dotenv(Path(ROOT_DIR / ".env"))
@@ -24,6 +30,8 @@ LOGGER_CONFIG_PATH = Path(ROOT_DIR / "logger/config")
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 KAFKA_SECURITY_PROTOCOL = os.getenv("KAFKA_SECURITY_PROTOCOL")
 KAFKA_FORECAST_REQUEST_TOPIC = os.getenv("KAFKA_FORECAST_REQUEST_TOPIC")
+KAFKA_FORECAST_RESPONSE_TOPIC = os.getenv("KAFKA_FORECAST_RESPONSE_TOPIC")
+KAFKA_FORECAST_PUBLISH_TOPIC = os.getenv("KAFKA_FORECAST_PUBLISH_TOPIC")
 
 
 @asynccontextmanager
@@ -42,12 +50,45 @@ async def lifespan(app: FastAPI):
     forecast_request_producer = ForecastRequestProducer(producer, KAFKA_FORECAST_REQUEST_TOPIC)
     set_forecast_request_producer(forecast_request_producer)
 
+    forecast_publish_producer = ForecastPublishProducer(producer, KAFKA_FORECAST_PUBLISH_TOPIC)
+    set_forecast_publish_producer(forecast_publish_producer)
+
+    consumer = AIOKafkaConsumer(
+        KAFKA_FORECAST_RESPONSE_TOPIC,
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        security_protocol=KAFKA_SECURITY_PROTOCOL,
+        group_id="postman_forecast_response_consumer_group"
+    )
+    await consumer.start()
+
+    forecast_service = ForecastService(forecast_repository=ForecastRequestsRepository())
+    session_builder = get_forecast_requests_session_maker()
+    consumer_redis_client = create_redis_client(os.getenv('REDIS_USER_POSTMAN'), os.getenv('REDIS_PASSWORD_POSTMAN'))
+
+    forecast_response_consumer = ForecastResponseConsumer(consumer, forecast_service, session_builder,
+                                                          consumer_redis_client, forecast_publish_producer)
+    set_forecast_response_consumer(forecast_response_consumer)
+
+    consumer_task = asyncio.create_task(forecast_response_consumer.start())
+
     try:
         yield
     finally:
         # app shutdown
-        await redis_pool.disconnect()
+        consumer_task.cancel()
+
+        try:
+            await consumer_task
+        except asyncio.CancelledError:
+            pass
+
+        await consumer.stop()
+
         await producer.stop()
+
+        await consumer_redis_client.aclose()
+
+        await redis_pool.disconnect()
 
 
 app = FastAPI(title="Postman Service", description="API service to get forecasts for provided ISINs", lifespan=lifespan)
