@@ -5,14 +5,14 @@ from sqlalchemy import select, Select, text, update, Update
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from postman.src.models.forecast_request import ForecastRequest
+from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
 from schemas.forecast_request_status import ForecastRequestStatus
-from postman.src.schemas.shared.forecasts_info_request_parsed import ForecastsInfoRequestParsed
 
 
 class ForecastRequestsRepository:
     @staticmethod
-    async def _build_select_requests_query(isin: str | None = None, time_frame_interval: int | None = None,
-                                           time_frame_unit: str | None = None, requested_plot: bool | None = None,
+    async def _build_select_requests_query(isin: str | None = None, time_frame: str | None = None,
+                                           requested_plot: bool | None = None,
                                            model: str | None = None, user_id: UUID | None = None,
                                            error: str | None = None, used_cache: bool | None = None,
                                            from_date: datetime | None = None,
@@ -22,8 +22,7 @@ class ForecastRequestsRepository:
 
         filters = {
             "isin": isin,
-            "time_frame_interval": time_frame_interval,
-            "time_frame_unit": time_frame_unit,
+            "time_frame": time_frame,
             "requested_plot": requested_plot,
             "model": model,
             "user_id": user_id,
@@ -68,11 +67,10 @@ class ForecastRequestsRepository:
                 session.add(forecast_request)
 
     async def select_requests(self, session_builder: async_sessionmaker[AsyncSession],
-                              stats_request: ForecastsInfoRequestParsed) -> list[ForecastRequest]:
+                              stats_request: GetForecastsInfoRequest) -> list[ForecastRequest]:
         async with session_builder() as session:
             query = await self._build_select_requests_query(stats_request.isin,
-                                                            stats_request.time_frame.time_frame_interval,
-                                                            stats_request.time_frame.time_frame_unit,
+                                                            stats_request.time_frame,
                                                             stats_request.requested_plot, stats_request.model,
                                                             stats_request.user_id, stats_request.error,
                                                             stats_request.used_cache, stats_request.from_date,

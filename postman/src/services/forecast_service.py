@@ -1,9 +1,6 @@
 import time
 import hashlib
 
-from typing import Annotated
-
-from fastapi import Depends
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
@@ -14,7 +11,7 @@ from postman.src.repositories.forecast_requests_repository import ForecastReques
 from postman.src.schemas.request.get_forecast_request import GetForecastRequest
 from postman.src.schemas.response.get_forecast_response import GetForecastResponse
 from postman.src.schemas.shared.cached_forecast_response import CachedForecastResponse
-from schemas.broker_messages.forecast_prediction_message import ForecastPredictionMessage
+from schemas.broker_messages.forecast_publish_message import ForecastPublishMessage
 from schemas.broker_messages.forecast_request_message import ForecastRequestMessage
 from schemas.broker_messages.forecast_response_message import ForecastResponseMessage
 from utils.parsing_utils import parse_time_frame, get_time_delta_from_time_frame
@@ -25,9 +22,9 @@ class ForecastService:
         self._forecast_repository = forecast_repository
 
     @staticmethod
-    def _get_forecast_key(isin: str, time_frame_interval: int, time_frame_unit: str,
+    def _get_forecast_key(isin: str, time_frame: str,
                           forecast_period: int, provide_plot) -> str:
-        key_raw = f'{isin}#{time_frame_interval}#{time_frame_unit}#{forecast_period}#{provide_plot}'
+        key_raw = f'{isin}#{time_frame}#{forecast_period}#{provide_plot}'
         key = hashlib.sha256(key_raw.encode()).hexdigest()
 
         return f'postman:forecasts:{key}'
@@ -37,10 +34,7 @@ class ForecastService:
                             broker_producer: ForecastRequestProducer) -> GetForecastResponse | None:
         request_start = time.perf_counter()
 
-        time_frame_parsed = parse_time_frame(request.time_frame)
-
-        cache_key = self._get_forecast_key(request.isin, time_frame_parsed.time_frame_interval,
-                                           time_frame_parsed.time_frame_unit, request.forecast_period,
+        cache_key = self._get_forecast_key(request.isin, request.time_frame, request.forecast_period,
                                            request.provide_plot)
 
         cached_forecast = await redis_client.get(cache_key)
@@ -51,8 +45,7 @@ class ForecastService:
             cached_response = CachedForecastResponse.model_validate_json(cached_forecast)
 
             forecast_request = ForecastRequest(isin=cached_response.isin,
-                                               time_frame_interval=cached_response.time_frame.time_frame_interval,
-                                               time_frame_unit=cached_response.time_frame.time_frame_unit,
+                                               time_frame=cached_response.time_frame,
                                                requested_plot=cached_response.provide_plot, model=cached_response.model,
                                                status=ForecastRequestStatus.COMPLETED, used_cache=True,
                                                duration_ms=time.perf_counter() - request_start)
@@ -62,8 +55,7 @@ class ForecastService:
             response = GetForecastResponse.model_validate(cached_response, from_attributes=True)
         else:
             forecast_request = ForecastRequest(isin=request.isin,
-                                               time_frame_interval=time_frame_parsed.time_frame.time_frame_interval,
-                                               time_frame_unit=time_frame_parsed.time_frame.time_frame_unit,
+                                               time_frame=request.time_frame,
                                                requested_plot=request.provide_plot,
                                                status=ForecastRequestStatus.PENDING, used_cache=False)
 
@@ -73,7 +65,7 @@ class ForecastService:
 
             broker_message = ForecastRequestMessage(request_id=forecast_request.id, isin=request.isin,
                                                     forecast_period=request.forecast_period,
-                                                    time_frame=time_frame_parsed, provide_plot=request.provide_plot)
+                                                    time_frame=request.time_frame, provide_plot=request.provide_plot)
 
             await broker_producer.send(broker_message)
 
@@ -85,22 +77,23 @@ class ForecastService:
     async def process_async_forecast(self, session_builder: async_sessionmaker[AsyncSession],
                                      redis_client: Redis, broker_producer: ForecastPublishProducer,
                                      broker_message: ForecastResponseMessage):
-        cache_key = self._get_forecast_key(broker_message.isin, broker_message.time_frame.time_frame_interval,
-                                           broker_message.time_frame.time_frame_unit, broker_message.forecast_period,
-                                           broker_message.provide_plot)
 
-        cache_duration = get_time_delta_from_time_frame(broker_message.time_frame)
+        if broker_message.status.COMPLETED:
+            cache_key = self._get_forecast_key(broker_message.isin, broker_message.time_frame,
+                                               broker_message.forecast_period, broker_message.provide_plot)
 
-        cache_forecast = CachedForecastResponse.model_validate(broker_message, from_attributes=True)
+            cache_duration = get_time_delta_from_time_frame(parse_time_frame(broker_message.time_frame))
 
-        await redis_client.setex(cache_key, cache_duration, cache_forecast.model_dump_json())
+            cache_forecast = CachedForecastResponse.model_validate(broker_message, from_attributes=True)
 
-        request_duration = redis_client.get(f"postman:duration:{broker_message.request_id}")
+            await redis_client.setex(cache_key, cache_duration, cache_forecast.model_dump_json())
+
+        request_duration = time.perf_counter() - redis_client.get(f"postman:duration:{broker_message.request_id}")
 
         await self._forecast_repository.update_forecast_request(session_builder, broker_message.request_id,
                                                                 broker_message.status, broker_message.model,
                                                                 broker_message.error, request_duration)
 
-        forecast_publish_message = ForecastPredictionMessage.model_validate(broker_message, from_attributes=True)
+        forecast_publish_message = ForecastPublishMessage.model_validate(broker_message, from_attributes=True)
 
         await broker_producer.send(forecast_publish_message)

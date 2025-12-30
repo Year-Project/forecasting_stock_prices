@@ -27,8 +27,8 @@ ENV PYTHONPATH=/home/scavenger_admin/app:$PYTHONPATH
 
 USER scavenger_admin
 
-WORKDIR /home/scavenger_admin/app/scavenger
+WORKDIR /home/scavenger_admin/app
 
 EXPOSE 8000
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./scavenger/entrypoint.sh"]

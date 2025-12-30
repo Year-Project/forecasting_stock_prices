@@ -1,9 +1,9 @@
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 
-from services.moex.moex import CandlesService, get_candles_service
-from schemas.response.get_candles_response import GetCandlesResponse, Candle
-from schemas.request.get_candles_request import GetCandlesRequest
+from scavenger.services.moex.moex import CandlesService, get_candles_service
+from scavenger.schemas.response.get_candles_response import GetCandlesResponse, Candle
+from scavenger.schemas.request.get_candles_request import GetCandlesRequest
 
 router = APIRouter(prefix="/info/v1", tags=["candles"])
 

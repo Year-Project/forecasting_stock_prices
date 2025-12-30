@@ -6,7 +6,7 @@ from sqlalchemy import (
     Float,
     UniqueConstraint,
 )
-from models.base import Base
+from scavenger.models.base import Base
 
 
 class CandleModel(Base):

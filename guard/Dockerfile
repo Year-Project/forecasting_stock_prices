@@ -27,9 +27,9 @@ ENV PYTHONPATH=/home/guard_admin/app:$PYTHONPATH
 
 USER guard_admin
 
-WORKDIR /home/guard_admin/app/guard
+WORKDIR /home/guard_admin/app
 
 EXPOSE 8000
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./guard/entrypoint.sh"]
 

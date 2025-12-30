@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
 
-from handlers import candles
-from utils.utils import ROOT_DIR
+from scavenger.handlers import candles
+from utils.config_utils import ROOT_DIR
 
 load_dotenv(Path(ROOT_DIR / ".env"))
 load_dotenv()

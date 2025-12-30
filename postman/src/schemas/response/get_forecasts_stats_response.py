@@ -3,12 +3,10 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from schemas.parsed_timeframe import ParsedTimeframe
-
 
 class GetForecastsStatsResponse(BaseModel):
     isin: str | None = None
-    time_frame: ParsedTimeframe | None = None
+    time_frame: str | None = None
     requested_plot: bool | None = None
     model: str | None = None
     user_id: UUID | None = None

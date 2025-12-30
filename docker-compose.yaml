@@ -22,6 +22,8 @@ services:
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
     healthcheck:
       test: ["CMD", "nc", "-vz", "localhost:9093"]
       interval: 5s
@@ -48,6 +50,8 @@ services:
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
     healthcheck:
       test: ["CMD", "nc", "-vz", "localhost:9093"]
       interval: 5s
@@ -74,6 +78,8 @@ services:
       CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
     healthcheck:
       test: ["CMD", "nc", "-vz", "localhost:9093"]
       interval: 5s

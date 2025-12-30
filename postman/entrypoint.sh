@@ -7,7 +7,8 @@ until pg_isready -h "${POSTMAN_DATABASE_HOST}" -p 5432 -U "${POSTMAN_DATABASE_US
 done
 
 echo "Running migrations..."
+cd postman
 alembic upgrade head
 
 echo "Starting postman server..."
-exec uvicorn postman.main:app --host 0.0.0.0 --port 8000
+exec uvicorn main:app --host 0.0.0.0 --port 8000

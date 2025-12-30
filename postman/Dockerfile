@@ -28,8 +28,8 @@ ENV PYTHONPATH=/home/postman_admin/app:$PYTHONPATH
 
 USER postman_admin
 
-WORKDIR /home/postman_admin/app/postman
+WORKDIR /home/postman_admin/app
 
 EXPOSE 8000
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./postman/entrypoint.sh"]

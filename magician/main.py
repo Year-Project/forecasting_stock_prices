@@ -13,11 +13,12 @@ import uvicorn
 from magician.dependencies import set_scavenger_client
 from magician.handlers import forecast_handler
 from magician.schemas.request.get_forecast_request import GetForecastRequest
-from magician.schemas.shared.forecast_request_message import ForecastRequestMessage
-from magician.schemas.shared.forecast_response_message import ForecastResponseMessage
 from magician.services.forecast_service import ForecastService
 from magician.services.scavenger_client import ScavengerClient
-from utils.utils import ROOT_DIR
+from schemas.broker_messages.forecast_request_message import ForecastRequestMessage
+from schemas.broker_messages.forecast_response_message import ForecastResponseMessage
+from schemas.forecast_request_status import ForecastRequestStatus
+from utils.config_utils import ROOT_DIR
 
 load_dotenv(Path(ROOT_DIR / ".env"))
 load_dotenv()
@@ -63,7 +64,7 @@ async def _consume_forecast_requests(
                 forecast_plot=response.forecast_plot,
                 provide_plot=payload.provide_plot,
                 model=MODEL_NAME,
-                status="completed",
+                status=ForecastRequestStatus.COMPLETED,
                 error=None,
             )
         except Exception as exc:
@@ -74,7 +75,7 @@ async def _consume_forecast_requests(
                 time_frame=payload.time_frame,
                 provide_plot=payload.provide_plot,
                 model=MODEL_NAME,
-                status="failed",
+                status=ForecastRequestStatus.FAILED,
                 error=str(exc),
             )
 
@@ -99,8 +100,7 @@ async def lifespan(app: FastAPI):
         KAFKA_FORECAST_REQUEST_TOPIC,
         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
         security_protocol=KAFKA_SECURITY_PROTOCOL,
-        group_id="magician-forecast-requests",
-        auto_offset_reset="earliest",
+        group_id="magician_forecast_requests_consumer_group"
     )
     await producer.start()
     await consumer.start()

@@ -28,8 +28,8 @@ ENV PYTHONPATH=/home/magician_admin/app:$PYTHONPATH
 
 USER magician_admin
 
-WORKDIR /home/magician_admin/app/magician
+WORKDIR /home/magician_admin/app
 
 EXPOSE 8000
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./magician/entrypoint.sh"]

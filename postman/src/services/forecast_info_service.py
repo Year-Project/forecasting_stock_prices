@@ -11,7 +11,6 @@ from postman.src.repositories.forecast_requests_repository import ForecastReques
 from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
 from postman.src.schemas.response.get_forecasts_history_response import GetForecastsHistoryResponse
 from postman.src.schemas.response.get_forecasts_stats_response import GetForecastsStatsResponse
-from postman.src.schemas.shared.forecasts_info_request_parsed import ForecastsInfoRequestParsed
 from utils.config_utils import load_yaml_config, ROOT_DIR
 from utils.parsing_utils import parse_time_frame
 
@@ -34,11 +33,7 @@ class ForecastInfoService:
 
     async def get_stats(self, session_builder: async_sessionmaker[AsyncSession],
                         request: GetForecastsInfoRequest) -> GetForecastsStatsResponse:
-        parsed_request = ForecastsInfoRequestParsed.model_validate(request)
-
-        parsed_request.time_frame = parse_time_frame(request.time_frame)
-
-        collected_requests = await self._forecast_repository.select_requests(session_builder, parsed_request)
+        collected_requests = await self._forecast_repository.select_requests(session_builder, request)
 
         response = GetForecastsStatsResponse.model_validate(request, from_attributes=True)
 
@@ -62,11 +57,7 @@ class ForecastInfoService:
 
     async def get_history(self, session_builder: async_sessionmaker[AsyncSession],
                           request: GetForecastsInfoRequest) -> GetForecastsHistoryResponse:
-        parsed_request = ForecastsInfoRequestParsed.model_validate(request)
-
-        parsed_request.time_frame = parse_time_frame(request.time_frame)
-
-        collected_requests = await self._forecast_repository.select_requests(session_builder, parsed_request)
+        collected_requests = await self._forecast_repository.select_requests(session_builder, request)
 
         response = GetForecastsHistoryResponse.model_validate(request, from_attributes=True)
 
