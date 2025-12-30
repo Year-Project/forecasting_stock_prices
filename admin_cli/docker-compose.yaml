@@ -1,6 +1,8 @@
 services:
-  admin-cli:
-    build: .
+  admin_cli:
+    build:
+      context: ..
+      dockerfile: admin_cli/Dockerfile
     networks:
       - internal_network
     environment:

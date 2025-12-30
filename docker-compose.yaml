@@ -131,4 +131,5 @@ volumes:
 networks:
   public_network:
   internal_network:
+    name: internal_network
     internal: true

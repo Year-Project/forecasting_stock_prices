@@ -35,7 +35,7 @@ def main():
         "telegram_id": args.telegram_id,
     }
 
-    response = requests.post(f"{AUTH_SERVICE_URL}/internal/v1/init_admin", json=payload, timeout=10)
+    response = requests.post(f"{AUTH_SERVICE_URL}/guard/internal/v1/init_admin", json=payload, timeout=10)
 
     if response.status_code != 200:
         logging.error(f'Failed to grant admin access! Request ended with status code {response.status_code},'
@@ -44,6 +44,7 @@ def main():
         sys.exit(1)
 
     logging.info(f'Granted admin permissions to user: {args.telegram_id}!')
+    logging.info(f'Secret for user {args.telegram_id}: {response.json()["secret"]}')
 
 
 if __name__ == "__main__":
