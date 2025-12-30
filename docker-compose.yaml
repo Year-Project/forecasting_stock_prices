@@ -1,7 +1,15 @@
 include:
   - ./postman/docker-compose.yaml
+  - ./magician/docker-compose.yaml
+  - ./scavenger/docker-compose.yaml
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+
   kafka-1:
     image: apache/kafka-native
     container_name: kafka-1

@@ -24,3 +24,4 @@ redis~=7.1.0
 aiokafka~=0.10.0
 PyJWT~=2.9.0
 numpy~=2.2.3
+statsmodels~=0.14.1
