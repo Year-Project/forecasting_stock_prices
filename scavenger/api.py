@@ -5,7 +5,9 @@ from fastapi import FastAPI
 import uvicorn
 
 from handlers import candles
+from utils.utils import ROOT_DIR
 
+load_dotenv(Path(ROOT_DIR / ".env"))
 load_dotenv()
 
 app = FastAPI(title="Scavenger Service", description="API service to get tickers data")
