@@ -14,3 +14,7 @@ class Candle(BaseModel):
     high: Optional[float] = None
     low: Optional[float] = None
     volume: Optional[float] = None
+
+
+class GetCandlesResponse(BaseModel):
+    candles: List[Candle]

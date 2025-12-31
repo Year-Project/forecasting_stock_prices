@@ -24,7 +24,7 @@ class ForecastService:
             interval=interval,
         )
 
-        forecast_price = self._auto_arima_forecast(candles.history, request.forecast_period)
+        forecast_price = self._auto_arima_forecast(candles.candles, request.forecast_period)
 
         return GetForecastResponse(
             isin=request.isin,
