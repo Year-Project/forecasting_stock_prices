@@ -1,6 +1,8 @@
 import time
 import hashlib
+from uuid import UUID
 
+import logging
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
@@ -48,16 +50,19 @@ class ForecastService:
             forecast_request = ForecastRequest(isin=cached_response.isin,
                                                time_frame=cached_response.time_frame,
                                                requested_plot=cached_response.provide_plot, model=cached_response.model,
-                                               user_id=user.user_id, status=ForecastRequestStatus.COMPLETED,
+                                               user_id=user.user_id, telegram_id=user.telegram_id,
+                                               status=ForecastRequestStatus.COMPLETED,
                                                used_cache=True, duration_ms=time.perf_counter() - request_start)
 
             await self._forecast_repository.save_request(session_builder, forecast_request)
 
             response = GetForecastResponse.model_validate(cached_response, from_attributes=True)
+            response.telegram_id = user.telegram_id
         else:
             forecast_request = ForecastRequest(isin=request.isin,
                                                time_frame=request.time_frame,
                                                requested_plot=request.provide_plot, user_id=user.user_id,
+                                               telegram_id=user.telegram_id,
                                                status=ForecastRequestStatus.PENDING, used_cache=False)
 
             await self._forecast_repository.save_request(session_builder, forecast_request)
@@ -102,5 +107,9 @@ class ForecastService:
                                                                 broker_message.error, request_duration)
 
         forecast_publish_message = ForecastPublishMessage.model_validate(broker_message, from_attributes=True)
+        request = await self._forecast_repository.get_request_by_id(session_builder, broker_message.request_id)
+
+        if request is not None:
+            forecast_publish_message.telegram_id = request.telegram_id
 
         await broker_producer.send(forecast_publish_message)

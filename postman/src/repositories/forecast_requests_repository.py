@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from uuid import UUID
 
@@ -65,6 +66,16 @@ class ForecastRequestsRepository:
         async with session_builder() as session:
             async with session.begin():
                 session.add(forecast_request)
+
+    @staticmethod
+    async def get_request_by_id(session_builder: async_sessionmaker[AsyncSession],
+                                request_id: UUID) -> ForecastRequest | None:
+        async with session_builder() as session:
+            query = select(ForecastRequest).where(ForecastRequest.id == request_id)
+
+            result = await session.execute(query)
+
+            return result.scalar_one_or_none()
 
     async def select_requests(self, session_builder: async_sessionmaker[AsyncSession],
                               stats_request: GetForecastsInfoRequest) -> list[ForecastRequest]:

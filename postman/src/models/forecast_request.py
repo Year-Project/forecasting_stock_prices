@@ -17,9 +17,10 @@ class ForecastRequest(Base):
     requested_plot: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     model: Mapped[str | None] = mapped_column(String, nullable=False, default='Undefined')
     user_id: Mapped[UUID | None] = mapped_column(UUID_ORM(as_uuid=True), nullable=True, index=True)
+    telegram_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[ForecastRequestStatus] = mapped_column(Enum_ORM(ForecastRequestStatus, name='status_enum'),
                                                           nullable=False)
-    error: Mapped[str | None] = mapped_column(String, nullable=True, default=None)
+    error: Mapped[str | None] = mapped_column(String, nullable=True)
     used_cache: Mapped[bool] = mapped_column(Boolean, default=False)
     duration_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False,

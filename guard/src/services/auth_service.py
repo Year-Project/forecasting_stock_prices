@@ -18,7 +18,8 @@ from guard.src.schemas.response.admin_auth_response import AdminAuthResponse
 from guard.src.schemas.response.auth_response import AuthResponse
 from schemas.user_role import UserRole
 from utils.hash_utils import hash_entity
-from guard.src.exceptions.exceptions import InvalidCredentialsException, TokenRevokedException, UserNotFound
+from guard.src.exceptions.exceptions import InvalidCredentialsException, TokenRevokedException, UserNotFound, \
+    SecretRevokedException
 from utils.jwt_utils import create_access_token, create_refresh_token, get_token_expiration, decode_token, \
     verify_and_decode_token
 
@@ -72,7 +73,7 @@ class AuthService:
 
     async def _create_tokens(self, session_builder: async_sessionmaker[AsyncSession], redis_client: Redis,
                              user: User, refresh_token_version: int) -> dict[str, str]:
-        access_token = create_access_token(user.id, user.role)
+        access_token = create_access_token(user.id, user.telegram_id, user.role)
 
         token_id = uuid.uuid4()
         refresh_token = create_refresh_token(token_id, user.id, refresh_token_version)
@@ -136,13 +137,16 @@ class AuthService:
         if user is None:
             raise UserNotFound(meta={'provided telegram_id': request.telegram_id})
 
+        if admin_secret is None:
+            raise SecretRevokedException()
+
         if user.role != UserRole.ADMIN or admin_secret.secret_hash != hash_entity(request.secret_key):
             raise InvalidCredentialsException('Requested admin token for user without admin permissions'
                                               ' or with invalid secret',
                                               meta={'provided telegram_id': request.telegram_id,
                                                     'provided secret': request.secret_key})
 
-        access_token = create_access_token(user.id, UserRole.ADMIN)
+        access_token = create_access_token(user.id, request.telegram_id, UserRole.ADMIN)
 
         return AdminAuthResponse(access_token=access_token)
 

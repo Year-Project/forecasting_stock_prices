@@ -5,6 +5,7 @@ class GetForecastResponse(BaseModel):
     isin: str
     forecast_period: int
     time_frame: str
-    forecast_price: float
+    telegram_id: int | None = None
+    forecast_price: float | None = None
     forecast_confidence: float | None = None
     forecast_plot: str | None = None

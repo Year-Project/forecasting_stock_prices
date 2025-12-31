@@ -20,7 +20,7 @@ def get_session_maker(name: str):
 async def get_current_user(creds: HTTPAuthorizationCredentials = Depends(security)) -> CurrentUser:
     token = creds.credentials
     payload = verify_and_decode_token(token)
-    return CurrentUser(user_id=UUID(payload["sub"]), role=UserRole(payload["role"]))
+    return CurrentUser(user_id=UUID(payload["sub"]), telegram_id=payload["telegram_id"], role=UserRole(payload["role"]))
 
 
 def get_admin_user(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:

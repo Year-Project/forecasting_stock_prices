@@ -28,6 +28,7 @@ def upgrade() -> None:
     sa.Column('requested_plot', sa.Boolean(), nullable=False),
     sa.Column('model', sa.String(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('telegram_id', sa.Integer(), nullable=True),
     sa.Column('status', sa.Enum('COMPLETED', 'PENDING', 'FAILED', name='status_enum'), nullable=False),
     sa.Column('error', sa.String(), nullable=True),
     sa.Column('used_cache', sa.Boolean(), nullable=False),

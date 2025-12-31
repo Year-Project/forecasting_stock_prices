@@ -9,11 +9,12 @@ from exceptions.exceptions import InvalidTokenException, TokenExpiredException
 from schemas.user_role import UserRole
 
 
-def create_access_token(user_id: UUID, role: UserRole) -> str:
+def create_access_token(user_id: UUID, telegram_id: int, role: UserRole) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")))
 
     payload = {
         "sub": str(user_id),
+        "telegram_id": telegram_id,
         "role": role.value,
         "type": "access",
         "exp": expire,

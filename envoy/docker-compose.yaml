@@ -1,0 +1,20 @@
+services:
+  envoy_service:
+    build:
+      context: ..
+      dockerfile: envoy/Dockerfile
+    container_name: envoy_service
+    restart: always
+    env_file:
+      - .env
+      - ../.env
+    depends_on:
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+    networks:
+      - public_network
+      - internal_network

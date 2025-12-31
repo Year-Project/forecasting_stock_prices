@@ -24,6 +24,12 @@ services:
     depends_on:
       guard_db:
         condition: service_started
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
       redis:
         condition: service_started
     environment:

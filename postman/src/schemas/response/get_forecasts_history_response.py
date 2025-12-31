@@ -11,12 +11,13 @@ class ForecastsHistory(BaseModel):
     isin: str
     time_frame: str
     requested_plot: bool
-    model: str | None
+    model: str | None = None
     user_id: UUID
+    telegram_id: int | None = None
     status: ForecastRequestStatus
-    error: str | None
+    error: str | None = None
     used_cache: bool
-    duration_ms: float | None
+    duration_ms: float | None = None
     created_at: datetime
 
 

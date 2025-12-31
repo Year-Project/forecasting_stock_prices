@@ -16,3 +16,7 @@ class TokenRevokedException(BaseServiceException):
         super().__init__(401, message, meta, headers)
 
 
+class SecretRevokedException(BaseServiceException):
+    def __init__(self, message: str = "Admin secret was revoked", meta: dict | None = None, headers: dict | None = None):
+        super().__init__(401, message, meta, headers)
+

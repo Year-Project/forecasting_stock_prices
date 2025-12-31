@@ -13,7 +13,7 @@ class AdminSecretRepository:
     async def get_secret_by_user_id(session_builder: async_sessionmaker[AsyncSession],
                                     user_id: UUID) -> AdminSecret | None:
         async with session_builder() as session:
-            query = select(AdminSecret).where(AdminSecret.user_id == user_id)
+            query = select(AdminSecret).where(AdminSecret.user_id == user_id, AdminSecret.revoked_at.is_(None))
 
             result = await session.execute(query)
 
