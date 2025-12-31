@@ -6,7 +6,7 @@ from sqlalchemy import (
     Float,
     UniqueConstraint,
 )
-from models.base import Base
+from src.models.base import Base
 
 
 class CandleModel(Base):
@@ -15,7 +15,8 @@ class CandleModel(Base):
     id = Column(Integer, primary_key=True)
 
     ticker = Column(String, nullable=False)
-    interval = Column(String, nullable=False)
+    isin = Column(String, nullable=True)
+    interval = Column(int, nullable=False)
 
     begin = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)

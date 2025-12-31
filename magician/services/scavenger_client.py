@@ -26,6 +26,6 @@ class ScavengerClient:
         if end is not None:
             params["end"] = end.isoformat()
 
-        response = await self._client.get("/scavenger/info/v1/", params=params)
+        response = await self._client.get("/scavenger/info/v1/candles", params=params)
         response.raise_for_status()
         return GetCandlesResponse.model_validate(response.json())

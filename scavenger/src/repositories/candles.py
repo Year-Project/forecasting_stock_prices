@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.candle import CandleModel
+from src.models.candle import CandleModel
 
 class CandlesRepository:
     def __init__(self, session: AsyncSession):
