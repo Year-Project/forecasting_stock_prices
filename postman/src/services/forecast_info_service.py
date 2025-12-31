@@ -24,11 +24,17 @@ class ForecastInfoService:
         self._forecast_repository = forecast_repository
 
     @staticmethod
-    def get_mean_duration(durations: list[float]) -> float:
+    def get_mean_duration(durations: list[float]) -> float | None:
+        if len(durations) == 0:
+            return None
+
         return float(np.mean(durations))
 
     @staticmethod
-    def get_quantile_duration(durations: list[float], quantile: float) -> float:
+    def get_quantile_duration(durations: list[float], quantile: float) -> float | None:
+        if len(durations) == 0:
+            return None
+
         return float(np.quantile(durations, quantile))
 
     async def get_stats(self, session_builder: async_sessionmaker[AsyncSession],
@@ -37,7 +43,7 @@ class ForecastInfoService:
 
         response = GetForecastsStatsResponse.model_validate(request, from_attributes=True)
 
-        durations = [forecast_request.duration_ms for forecast_request in collected_requests]
+        durations = list(filter(None, [forecast_request.duration_ms for forecast_request in collected_requests]))
 
         duration_stats: dict[str, float | None] = {metric: None for metric in self.metrics}
 

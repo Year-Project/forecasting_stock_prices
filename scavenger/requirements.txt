@@ -12,3 +12,4 @@ apimoex~=1.4.0
 psycopg2-binary~=2.9.9
 aiokafka~=0.10.0
 pandas~=2.3.3
+PyJWT~=2.9.0

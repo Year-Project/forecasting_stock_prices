@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from guard.src.models.refresh_token import RefreshToken
 from guard.src.models.user import User
+from guard.src.repositories.admin_secret_repository import AdminSecretRepository
 from guard.src.repositories.refresh_token_repository import RefreshTokenRepository
 from guard.src.repositories.user_repository import UserRepository
 from guard.src.schemas.request.admin_auth_request import AdminAuthRequest
@@ -26,9 +27,11 @@ import json
 
 class AuthService:
     def __init__(self, user_repository: Annotated[UserRepository, Depends()],
-                 refresh_token_repository: Annotated[RefreshTokenRepository, Depends()]):
+                 refresh_token_repository: Annotated[RefreshTokenRepository, Depends()],
+                 admin_secret_repository: Annotated[AdminSecretRepository, Depends()]):
         self._user_repository = user_repository
         self._refresh_token_repository = refresh_token_repository
+        self._admin_secret_repository = admin_secret_repository
 
     async def _revoke_token(self, session_builder: async_sessionmaker[AsyncSession],
                             redis_client: Redis, token_id: UUID):
@@ -59,13 +62,13 @@ class AuthService:
     @staticmethod
     async def _get_refresh_tokens_version(redis_client: Redis, user_id: UUID) -> int:
         cache_key = f"guard:user_token_version:{user_id}"
-        refresh_token_version = redis_client.get(cache_key)
+        refresh_token_version = await redis_client.get(cache_key)
 
         if refresh_token_version is None:
             refresh_token_version = 1
             await redis_client.set(cache_key, 1)
 
-        return refresh_token_version
+        return int(refresh_token_version)
 
     async def _create_tokens(self, session_builder: async_sessionmaker[AsyncSession], redis_client: Redis,
                              user: User, refresh_token_version: int) -> dict[str, str]:
@@ -76,7 +79,7 @@ class AuthService:
 
         token_hash = hash_entity(refresh_token)
         refresh_token_orm = RefreshToken(id=token_id, user_id=user.id, token_hash=token_hash,
-                                         expires_at=get_token_expiration(refresh_token))
+                                         expires_at=get_token_expiration(refresh_token, "refresh"))
 
         await self._refresh_token_repository.save_token(session_builder, refresh_token_orm)
 
@@ -107,7 +110,8 @@ class AuthService:
         if refresh_token_version != valid_refresh_token_version:
             raise TokenRevokedException()
 
-        cached_token = await redis_client.get(token_id)
+        cache_key = f"guard:refresh_token:{token_id}"
+        cached_token = await redis_client.get(cache_key)
 
         if cached_token is None:
             raise TokenRevokedException()
@@ -127,19 +131,26 @@ class AuthService:
     async def get_admin_token(self, session_builder: async_sessionmaker[AsyncSession],
                               request: AdminAuthRequest) -> AdminAuthResponse:
         user = await self._user_repository.get_by_telegram_id(session_builder, request.telegram_id)
+        admin_secret = await self._admin_secret_repository.get_secret_by_user_id(session_builder, user.id)
 
         if user is None:
             raise UserNotFound(meta={'provided telegram_id': request.telegram_id})
 
-        if user.role != UserRole.ADMIN:
-            raise InvalidCredentialsException('Requested admin token for user without admin permissions',
-                                              meta={'provided telegram_id': request.telegram_id})
-
-        if user.admin_secret != hash_entity(request.secret_key):
-            raise InvalidCredentialsException('Provided invalid admin secret',
+        if user.role != UserRole.ADMIN or admin_secret.secret_hash != hash_entity(request.secret_key):
+            raise InvalidCredentialsException('Requested admin token for user without admin permissions'
+                                              ' or with invalid secret',
                                               meta={'provided telegram_id': request.telegram_id,
                                                     'provided secret': request.secret_key})
 
         access_token = create_access_token(user.id, UserRole.ADMIN)
 
         return AdminAuthResponse(access_token=access_token)
+
+    async def revoke_tokens_for_user(self, session_builder: async_sessionmaker[AsyncSession], redis_client: Redis,
+                                     user_id: UUID):
+        user = await self._user_repository.get_by_id(session_builder, user_id)
+
+        if user is None:
+            raise UserNotFound(meta={'provided user_id': user_id})
+
+        await self._revoke_tokens_for_user(session_builder, redis_client, user_id)

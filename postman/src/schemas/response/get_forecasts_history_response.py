@@ -30,4 +30,4 @@ class GetForecastsHistoryResponse(BaseModel):
     used_cache: bool | None = None
     from_date: datetime | None = None
     to_date: datetime | None = None
-    history: list[ForecastsHistory]
+    history: list[ForecastsHistory] | None = None

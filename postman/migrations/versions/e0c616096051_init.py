@@ -29,7 +29,7 @@ def upgrade() -> None:
     sa.Column('model', sa.String(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('status', sa.Enum('COMPLETED', 'PENDING', 'FAILED', name='status_enum'), nullable=False),
-    sa.Column('error', sa.String(), nullable=False),
+    sa.Column('error', sa.String(), nullable=True),
     sa.Column('used_cache', sa.Boolean(), nullable=False),
     sa.Column('duration_ms', sa.Float(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),

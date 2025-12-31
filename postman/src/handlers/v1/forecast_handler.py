@@ -12,21 +12,23 @@ from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
 from postman.src.schemas.request.get_forecast_request import GetForecastRequest
 from postman.src.schemas.response.get_forecast_response import GetForecastResponse
 from postman.src.services.forecast_service import ForecastService
+from schemas.current_user import CurrentUser
 
-router = APIRouter(prefix="/forecasts/v1", tags=["forecasts"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/forecasts/v1", tags=["forecasts"])
 
 get_redis_client = RedisClientProvider(os.getenv('REDIS_USER_POSTMAN'), os.getenv('REDIS_PASSWORD_POSTMAN'))
 
 
 @router.post("/forecast", response_model=GetForecastResponse | None)
 async def get_forecast_handler(request: GetForecastRequest, response: Response,
+                               user: CurrentUser = Depends(get_current_user),
                                forecast_service: ForecastService = Depends(get_forecast_service),
                                forecast_requests_sb: async_sessionmaker[AsyncSession]
                                = Depends(get_forecast_requests_session_maker),
                                redis_client: Redis = Depends(get_redis_client),
                                broker_producer: ForecastRequestProducer = Depends(get_forecast_request_producer)):
 
-    result = await forecast_service.get_forecasts(forecast_requests_sb, redis_client, request, broker_producer)
+    result = await forecast_service.get_forecasts(forecast_requests_sb, redis_client, request, user, broker_producer)
 
     if result is None:
         response.status_code = status.HTTP_201_CREATED

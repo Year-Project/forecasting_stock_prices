@@ -66,8 +66,8 @@ def verify_and_decode_token(token: str, token_type: str = "access") -> dict:
     return payload
 
 
-def get_token_expiration(token: str) -> datetime | None:
-    payload = verify_and_decode_token(token)
+def get_token_expiration(token: str, token_type: str = "access") -> datetime | None:
+    payload = verify_and_decode_token(token, token_type)
 
     return datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
 

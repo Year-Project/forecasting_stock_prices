@@ -14,4 +14,4 @@ class GetForecastsStatsResponse(BaseModel):
     used_cache: bool | None = None
     from_date: datetime | None = None
     to_date: datetime | None = None
-    execution_duration: dict[str, float]
+    execution_duration: dict[str, float] | None = None

@@ -1,3 +1,4 @@
+import logging
 from typing import override
 
 from aiokafka import AIOKafkaConsumer
@@ -28,8 +29,10 @@ class ForecastResponseConsumer(BaseBrokerConsumer[ForecastResponseMessage]):
     async def start(self):
         async for message in self._consumer:
             try:
-                payload = ForecastResponseMessage.model_validate_json(message.value)
+                payload = ForecastResponseMessage.model_validate_json(message.value.decode('utf-8'))
                 await self.consume(payload)
             except ValueError as e:
-                continue
+                logging.error(f"Failed to parse kafka message ForecastResponseMessage")
+            except Exception as e:
+                logging.error(f"Failed to process kafka message ForecastResponseMessage")
 

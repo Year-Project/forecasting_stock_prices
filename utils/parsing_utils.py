@@ -13,7 +13,7 @@ def parse_time_frame(timeframe: str) -> ParsedTimeframe | None:
     if match is None:
         return None
 
-    return ParsedTimeframe(time_frame_interval=int(match.group(1)), timeframe_unit=match.group(2))
+    return ParsedTimeframe(time_frame_interval=int(match.group(1)), time_frame_unit=match.group(2))
 
 
 def get_time_delta_from_time_frame(time_frame: ParsedTimeframe) -> timedelta | None:

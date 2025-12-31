@@ -12,7 +12,7 @@ import uvicorn
 from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
 from postman.src.kafka.forecast_publish_producer import ForecastPublishProducer
 from postman.src.kafka.forecast_response_consumer import ForecastResponseConsumer
-from db.redis.cache import redis_pool, create_redis_client
+from db.redis.cache import create_redis_client
 from postman.src.dependencies import set_forecast_request_producer, set_forecast_publish_producer, \
     set_forecast_response_consumer, get_forecast_requests_session_maker
 from dependencies.dependencies import db_registry
@@ -87,8 +87,6 @@ async def lifespan(app: FastAPI):
         await producer.stop()
 
         await consumer_redis_client.aclose()
-
-        await redis_pool.disconnect()
 
 
 app = FastAPI(title="Postman Service", description="API service to get forecasts for provided ISINs", lifespan=lifespan)

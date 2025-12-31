@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
 
-from db.redis.cache import redis_pool
 from dependencies.dependencies import db_registry
 from guard.src.handlers.v1 import auth_handler
 from guard.src.handlers.v1 import internal_admin_handler
@@ -30,11 +29,7 @@ async def lifespan(app: FastAPI):
     )
     db_registry.register("auth", os.getenv("DATABASE_URL"))
 
-    try:
-        yield
-    finally:
-        # app shutdown
-        await redis_pool.disconnect()
+    yield
 
 
 app = FastAPI(title="Guard Service", description="Authentication and authorization service", lifespan=lifespan)
