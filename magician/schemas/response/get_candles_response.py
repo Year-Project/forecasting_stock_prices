@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
-
+from typing import Optional, List
 from pydantic import BaseModel
 
 
@@ -8,6 +7,7 @@ class Candle(BaseModel):
     begin: datetime
     end: datetime
     ticker: str
+    isin: str
     interval: int
     open: Optional[float] = None
     close: Optional[float] = None
@@ -17,8 +17,4 @@ class Candle(BaseModel):
 
 
 class GetCandlesResponse(BaseModel):
-    ticker: Optional[str] = None
-    interval: Optional[int] = None
-    from_date: Optional[datetime] = None
-    to_date: Optional[datetime] = None
-    history: List[Candle]
+    candles: List[Candle]

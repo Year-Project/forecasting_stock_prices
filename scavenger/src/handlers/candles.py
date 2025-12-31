@@ -3,12 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
 from src.services.moex.moex import MOEXService, get_moex_service
-from src.schemas.response.get_candles_response import Candle
+from src.schemas.response.get_candles_response import Candle, GetCandlesResponse
 from src.schemas.request.get_candles_request import GetCandlesRequest
 
 router = APIRouter(prefix="/info/v1", tags=["candles"])
 
-@router.get("/candles", response_model=List[Candle], summary="Get MOEX candles by ticker or ISIN")
+@router.get("/candles", response_model=GetCandlesResponse, summary="Get MOEX candles by ticker or ISIN")
 async def get_candles_handler(
     request: GetCandlesRequest = Depends(),
     candles_service: MOEXService = Depends(get_moex_service)
@@ -27,21 +27,22 @@ async def get_candles_handler(
             )
         )
 
-        return [
-            Candle(
-                begin=row["begin"],
-                end=row["end"],
-                ticker=row["ticker"],
-                isin=row.get("original_isin", request.isin or ""),
-                interval=row["interval"],
-                open=row.get("open"),
-                close=row.get("close"),
-                high=row.get("high"),
-                low=row.get("low"),
-                volume=row.get("volume"),
-            )
-            for _, row in df.iterrows()
-        ]
+        return GetCandlesResponse(
+                candles=[
+                    Candle(
+                        begin=row["begin"],
+                        end=row["end"],
+                        ticker=row["ticker"],
+                        isin=row.get("original_isin", request.isin or ""),
+                        interval=row["interval"],
+                        open=row.get("open"),
+                        close=row.get("close"),
+                        high=row.get("high"),
+                        low=row.get("low"),
+                        volume=row.get("volume"),
+                    ) for _, row in df.iterrows()
+                ]
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
