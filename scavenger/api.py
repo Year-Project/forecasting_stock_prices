@@ -3,16 +3,31 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
+import os
 
-from scavenger.handlers import candles
+from scavenger.src.handlers import candles
 from utils.config_utils import ROOT_DIR
 
-load_dotenv(Path(ROOT_DIR / ".env"))
-load_dotenv()
+env_path = Path(ROOT_DIR / ".env")
+if env_path.exists():
+    load_dotenv(env_path)
+else:
+    load_dotenv()
 
-app = FastAPI(title="Scavenger Service", description="API service to get tickers data")
+app = FastAPI(
+    title="Scavenger Service", 
+    description="API service to get tickers data",
+    version=os.getenv("API_VERSION", "0.0.1")
+)
 
 app.include_router(candles.router, prefix="/scavenger")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    host = os.getenv("API_HOST", "0.0.0.0")
+    port = int(os.getenv("API_PORT", "8001"))
+    
+    uvicorn.run(
+        app, 
+        host=host, 
+        port=port,
+    )

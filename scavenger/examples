@@ -1,2 +1,5 @@
-curl -X GET "http://localhost:8000/scavenger/info/v1/?ticker=SBER&interval=60&start=2025-01-01&end=2025-01-05" \
+curl -X GET "http://localhost:8002/scavenger/info/v1/ticker?ticker=SBER&interval=60&start=2025-01-01&end=2025-01-05" \
+     -H "Accept: application/json"
+
+curl -X GET "http://localhost:8002/scavenger/info/v1/ticker?isin=RU0009029540&interval=60&start=2025-01-01&end=2025-01-05" \
      -H "Accept: application/json"
