@@ -21,9 +21,12 @@ def timeframe_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
+                InlineKeyboardButton(text="1m", callback_data="tf:1m"),
+                InlineKeyboardButton(text="10m", callback_data="tf:10m"),
+                InlineKeyboardButton(text="1h", callback_data="tf:1h"),
                 InlineKeyboardButton(text="1d", callback_data="tf:1d"),
                 InlineKeyboardButton(text="1w", callback_data="tf:1w"),
-                InlineKeyboardButton(text="1M", callback_data="tf:1M"),
+                InlineKeyboardButton(text="1mo", callback_data="tf:1mo"),
             ]
         ]
     )
@@ -55,7 +58,7 @@ def setup(forecast_client):
         isin = message.text.strip().upper()
 
         await state.update_data(isin=isin)
-        await message.answer("📆 Введите период прогнозирования (например: 7):")
+        await message.answer("📆 Введите период прогнозирования:")
         await state.set_state(ForecastFSM.waiting_period)
 
     @router.message(ForecastFSM.waiting_period)
@@ -94,15 +97,20 @@ def setup(forecast_client):
             "provide_plot": provide_plot,
         }
 
-        response_status = await forecast_client.request_forecast(telegram_id=callback.from_user.id,
-                                                                 payload=request)
+        response = await forecast_client.request_forecast(telegram_id=callback.from_user.id,
+                                                          payload=request)
+        response_body = response.json()
 
-        logging.info(f"{response_status}")
-        if response_status == 200:
-            await callback.message.answer(f"📊 Прогноз готов")
-        elif response_status == 201:
+        if response.status_code == 200:
+            await callback.message.answer(f"📈 Прогноз для {response_body["isin"]}\n"
+                                          f"(timeframe = {response_body["time_frame"]} |"
+                                          f" горизонт прогноза = {response_body["forecast_period"]})\n"
+                                          f"Цена: {response_body["forecast_price"]}\n")
+        elif response.status_code == 201:
             await callback.message.answer("⏳ Прогноз запрошен. Я пришлю результат, когда он будет готов.")
         else:
             await callback.message.answer("❌ Ошибка при запросе прогноза.")
+
+        await callback.answer()
 
     return router
