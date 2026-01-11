@@ -1,0 +1,11 @@
+stocks:
+  - SBER
+  - SBERP
+  - T
+  - MBNK
+  - VTBR
+  - CBOM
+  - SVCB
+
+output_dir: EDA/gen/
+output_file: historical_data.csv
