@@ -1,0 +1,14 @@
+services:
+  admin_cli:
+    build:
+      context: ..
+      dockerfile: admin_cli/Dockerfile
+    networks:
+      - internal_network
+    environment:
+      AUTH_SERVICE_URL: http://guard_service:8000
+
+
+networks:
+  internal_network:
+    external: true

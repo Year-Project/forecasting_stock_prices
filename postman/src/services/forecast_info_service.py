@@ -1,0 +1,72 @@
+import os
+import re
+from pathlib import Path
+from typing import Annotated
+
+import numpy as np
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+
+from postman.src.repositories.forecast_requests_repository import ForecastRequestsRepository
+from postman.src.schemas.request.get_forecasts_info_request import GetForecastsInfoRequest
+from postman.src.schemas.response.get_forecasts_history_response import GetForecastsHistoryResponse
+from postman.src.schemas.response.get_forecasts_stats_response import GetForecastsStatsResponse
+from utils.config_utils import load_yaml_config, ROOT_DIR
+from utils.parsing_utils import parse_time_frame
+
+
+class ForecastInfoService:
+    CONFIG_PATH = Path(ROOT_DIR / 'postman/src/services/config')
+
+    def __init__(self, forecast_repository: Annotated[ForecastRequestsRepository, Depends()]):
+        parsed_yaml = load_yaml_config(f'{self.CONFIG_PATH}/stats_metrics_conf.{os.getenv('ENV')}.yaml')
+        self.metrics: list[str] = parsed_yaml['metrics']
+        self._forecast_repository = forecast_repository
+
+    @staticmethod
+    def get_mean_duration(durations: list[float]) -> float | None:
+        if len(durations) == 0:
+            return None
+
+        return float(np.mean(durations))
+
+    @staticmethod
+    def get_quantile_duration(durations: list[float], quantile: float) -> float | None:
+        if len(durations) == 0:
+            return None
+
+        return float(np.quantile(durations, quantile))
+
+    async def get_stats(self, session_builder: async_sessionmaker[AsyncSession],
+                        request: GetForecastsInfoRequest) -> GetForecastsStatsResponse:
+        collected_requests = await self._forecast_repository.select_requests(session_builder, request)
+
+        response = GetForecastsStatsResponse.model_validate(request, from_attributes=True)
+
+        durations = list(filter(None, [forecast_request.duration_ms for forecast_request in collected_requests]))
+
+        duration_stats: dict[str, float | None] = {metric: None for metric in self.metrics}
+
+        for metric in self.metrics:
+            if metric == 'mean':
+                duration_stats[metric] = self.get_mean_duration(durations)
+            elif metric.startswith('quantile'):
+                match = re.search(r'(\d+)%', metric)
+
+                if match is not None:
+                    quantile_value = float(match.group(1)) / 100
+                    duration_stats[metric] = self.get_quantile_duration(durations, quantile_value)
+
+        response.execution_duration = duration_stats
+
+        return response
+
+    async def get_history(self, session_builder: async_sessionmaker[AsyncSession],
+                          request: GetForecastsInfoRequest) -> GetForecastsHistoryResponse:
+        collected_requests = await self._forecast_repository.select_requests(session_builder, request)
+
+        response = GetForecastsHistoryResponse.model_validate(request, from_attributes=True)
+
+        response.history = collected_requests
+
+        return response

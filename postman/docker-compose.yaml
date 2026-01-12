@@ -1,0 +1,48 @@
+services:
+  postman_db:
+    image: postgres:16
+    container_name: postman_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTMAN_DATABASE_USER}
+      POSTGRES_PASSWORD: ${POSTMAN_DATABASE_PASSWORD}
+      POSTGRES_DB: ${POSTMAN_DATABASE_NAME}
+    volumes:
+      - postman_db_data:/var/lib/postgresql/data
+    networks:
+      - internal_network
+
+  postman_service:
+    build:
+      context: ..
+      dockerfile: postman/Dockerfile
+    container_name: postman_service
+    restart: always
+    env_file:
+      - .env
+      - ../.env
+    depends_on:
+      postman_db:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+          condition: service_healthy
+      kafka-3:
+          condition: service_healthy
+    environment:
+      DATABASE_URL: ${POSTMAN_DATABASE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - 8000:8000
+    volumes:
+      - ./migrations:/home/postman_admin/app/postman/migrations
+    networks:
+      - public_network
+      - internal_network
+
+volumes:
+  postman_db_data:

@@ -1,0 +1,22 @@
+services:
+  scavenger_service:
+    build:
+      context: ..
+      dockerfile: scavenger/Dockerfile
+    container_name: scavenger_service
+    restart: always
+    env_file:
+      - .env
+      - ../.env
+    depends_on:
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+    ports:
+      - 8003:8000
+    networks:
+      - public_network
+      - internal_network
