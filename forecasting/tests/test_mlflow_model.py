@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from stock_forecast.artifacts import save_json
+from stock_forecast.artifacts import save_json, save_table
+from stock_forecast.mlflow_cli import _model_training_run_payloads
 from stock_forecast.mlflow_model import StockReturnPyFuncRouter
 
 
@@ -78,3 +79,88 @@ def test_pyfunc_router_rejects_unsupported_ticker(tmp_path):
 
     with pytest.raises(ValueError, match="No registered forecast model"):
         router.predict(None, _ohlcv_frame(ticker="VTBR"))
+
+
+def test_mlflow_training_run_payloads_include_results_and_best_params(tmp_path):
+    reports_dir = tmp_path / "reports"
+    reports_dir.mkdir()
+    save_table(
+        pd.DataFrame(
+            [
+                {
+                    "ticker": "SBER",
+                    "model_name": "ridge",
+                    "n_obs": 20,
+                    "directional_accuracy": 0.65,
+                    "rmse": 0.02,
+                    "n_train": 120,
+                    "split_quality": "mature",
+                    "limited_history": False,
+                }
+            ]
+        ),
+        reports_dir / "validation_prediction_metrics.parquet",
+    )
+    save_table(
+        pd.DataFrame(
+            [
+                {
+                    "ticker": "SBER",
+                    "model_name": "ridge",
+                    "n_obs": 20,
+                    "directional_accuracy": 0.7,
+                    "rmse": 0.015,
+                    "validation_rank": 1,
+                    "validation_directional_accuracy": 0.65,
+                }
+            ]
+        ),
+        reports_dir / "test_prediction_metrics.parquet",
+    )
+    save_table(
+        pd.DataFrame(
+            [
+                {
+                    "ticker": "SBER",
+                    "model_name": "ridge",
+                    "validation_rank": 1,
+                    "validation_directional_accuracy": 0.65,
+                    "is_validation_selected": True,
+                }
+            ]
+        ),
+        reports_dir / "validation_model_ranking.parquet",
+    )
+    save_table(
+        pd.DataFrame([{"ticker": "SBER", "model_name": "ridge"}]),
+        reports_dir / "selected_models_by_ticker.parquet",
+    )
+    save_table(
+        pd.DataFrame(
+            [
+                {
+                    "ticker": "SBER",
+                    "model_name": "ridge",
+                    "signal_mode": "overlapping_tranches",
+                    "sharpe": 1.4,
+                    "cumulative_return": 0.12,
+                }
+            ]
+        ),
+        reports_dir / "test_signal_metrics.parquet",
+    )
+    save_json(
+        [{"ticker": "SBER", "model_name": "ridge", "best_params": {"alpha": 1.0}}],
+        reports_dir / "best_params.json",
+    )
+
+    payloads = _model_training_run_payloads(reports_dir, "week", 5)
+
+    assert len(payloads) == 1
+    payload = payloads[0]
+    assert payload["tags"]["is_validation_selected"] == "true"
+    assert payload["params"]["best_param_alpha"] == 1.0
+    assert payload["metrics"]["validation_directional_accuracy"] == pytest.approx(0.65)
+    assert payload["metrics"]["test_directional_accuracy"] == pytest.approx(0.7)
+    assert payload["metrics"]["selection_validation_rank"] == pytest.approx(1.0)
+    assert payload["metrics"]["test_signal_overlapping_tranches_sharpe"] == pytest.approx(1.4)

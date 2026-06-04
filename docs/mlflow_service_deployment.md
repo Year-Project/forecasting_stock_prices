@@ -1,6 +1,7 @@
 # MLflow Service Deployment
 
 This project starts all runtime services from the repository root with one Compose command. MLflow is part of the same Compose graph and is reachable by other services through the internal Docker network.
+The Compose service uses MLflow artifact proxying, so training containers can upload run tables, plots and model artifacts through `http://mlflow:5000` without writing directly to the MLflow volume.
 
 ## Start
 
@@ -40,6 +41,13 @@ Expected registered model aliases:
 
 - `models:/stock_return_forecaster_week@prd`
 - `models:/stock_return_forecaster_month@prd`
+
+After the command finishes, MLflow UI shows:
+
+- parent runs named `week-strict-prd` and `month-strict-prd` in the `stock_return_forecasting` experiment;
+- nested runs named `{horizon}-{ticker}-{model}` with per-model validation, test and signal metrics;
+- run artifacts under `tables/`, `reports/`, `plots/`, `reproducibility/` and `model/`;
+- registered pyfunc models in the Models tab with the `prd` alias.
 
 ## API Smoke Test
 

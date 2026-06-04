@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import importlib.metadata
 import importlib.util
+import json
 import math
 from pathlib import Path
 import shutil
@@ -13,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from .artifacts import load_json, load_table, save_json
-from .mlflow_model import MODEL_BUNDLE_ARTIFACT, StockReturnPyFuncRouter, safe_filename
+from .mlflow_model import MODEL_BUNDLE_ARTIFACT, REQUIRED_INPUT_COLUMNS, StockReturnPyFuncRouter, safe_filename
 from .strict_protocol import run_strict_per_ticker_protocol
 
 
@@ -23,6 +24,49 @@ HORIZON_SPECS = {
 }
 DEFAULT_EXPERIMENT_NAME = "stock_return_forecasting"
 DEFAULT_ALIAS = "prd"
+MLFLOW_TABLE_MAX_ROWS = 5000
+MLFLOW_PREDICTION_SAMPLE_ROWS = 1000
+MLFLOW_PARAM_MAX_LENGTH = 500
+REPORT_TABLE_ARTIFACTS = [
+    ("outer_splits", "outer_splits.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("selected_models_by_ticker", "selected_models_by_ticker.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("validation_model_ranking", "validation_model_ranking.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("validation_prediction_metrics", "validation_prediction_metrics.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("test_prediction_metrics", "test_prediction_metrics.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("test_signal_metrics", "test_signal_metrics.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("inner_tuning_metrics", "inner_tuning_metrics.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("best_params", "best_params.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("leakage_audit", "leakage_audit.parquet", MLFLOW_TABLE_MAX_ROWS),
+    ("validation_predictions_sample", "validation_predictions.parquet", MLFLOW_PREDICTION_SAMPLE_ROWS),
+    ("test_predictions_sample", "test_predictions.parquet", MLFLOW_PREDICTION_SAMPLE_ROWS),
+]
+MODEL_METRIC_COLUMNS = [
+    "n_obs",
+    "mae",
+    "rmse",
+    "r2",
+    "pearson",
+    "spearman",
+    "directional_accuracy",
+    "n_train",
+    "n_train_before_purge",
+    "n_train_purged",
+    "n_train_available",
+    "n_refit_available",
+]
+SIGNAL_METRIC_COLUMNS = [
+    "cumulative_return",
+    "annualized_return",
+    "annualized_volatility",
+    "periods_per_year",
+    "sharpe",
+    "sortino",
+    "max_drawdown",
+    "calmar",
+    "turnover",
+    "number_of_trades",
+    "n_rebalances",
+]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -200,6 +244,7 @@ def log_and_register_horizon(
     bundle_dir = build_model_bundle(artifact_root, horizon_name)
     manifest_path = write_reproducibility_manifest(artifact_root, horizon_name)
     robustness_paths = write_error_robustness_report(artifact_root, horizon_name)
+    input_example, signature = _model_input_example_and_signature(artifact_root, horizon_name, bundle_dir)
 
     mlflow.set_experiment(experiment_name)
     with mlflow.start_run(run_name=f"{horizon_name}-strict-prd") as run:
@@ -212,7 +257,10 @@ def log_and_register_horizon(
             }
         )
         mlflow.log_params({"horizon_name": horizon_name, "horizon": int(spec["horizon"])})
+        _log_training_dataset(artifact_root, horizon_name)
+        _log_training_summary_params(reports_dir)
         _log_report_metrics(reports_dir)
+        _log_report_tables(reports_dir)
         mlflow.log_artifact(str(manifest_path), artifact_path="reproducibility")
         for path in robustness_paths:
             mlflow.log_artifact(str(path), artifact_path="reports")
@@ -221,13 +269,18 @@ def log_and_register_horizon(
         plots_dir = strict_root / "plots"
         if plots_dir.exists():
             mlflow.log_artifacts(str(plots_dir), artifact_path="plots")
+        _log_model_training_runs(reports_dir, strict_root / "models", horizon_name, int(spec["horizon"]))
+        if input_example is not None:
+            mlflow.log_table(_mlflow_table(input_example), artifact_file="tables/model_input_example.json")
 
+        model_log_kwargs = {"input_example": input_example, "signature": signature} if signature is not None else {}
         model_info = mlflow.pyfunc.log_model(
             name="model",
             python_model=StockReturnPyFuncRouter(),
             artifacts={MODEL_BUNDLE_ARTIFACT: str(bundle_dir)},
             code_paths=[str(Path(__file__).resolve().parents[1])],
             pip_requirements=_model_pip_requirements(),
+            **model_log_kwargs,
         )
         registered = mlflow.register_model(model_info.model_uri, registered_model_name)
         client = MlflowClient()
@@ -319,6 +372,206 @@ def write_error_robustness_report(artifact_root: Path, horizon_name: str) -> lis
     return [json_path, md_path]
 
 
+def _log_training_dataset(artifact_root: Path, horizon_name: str) -> None:
+    import mlflow
+
+    data_path = artifact_root / "data" / "horizons" / horizon_name / "model_dataset.parquet"
+    frame = _load_optional_table(data_path)
+    if frame.empty:
+        mlflow.set_tag("training_dataset_path", str(data_path))
+        mlflow.set_tag("training_dataset_available", "false")
+        return
+
+    params: dict[str, Any] = {
+        "training_rows": len(frame),
+        "training_columns": len(frame.columns),
+    }
+    if "ticker" in frame.columns:
+        params["training_tickers"] = int(frame["ticker"].dropna().astype(str).nunique())
+    mlflow.log_params(_mlflow_params(params))
+    mlflow.set_tag("training_dataset_path", str(data_path))
+    mlflow.set_tag("training_dataset_available", "true")
+
+    try:
+        dataset_sample = frame.head(min(len(frame), MLFLOW_PREDICTION_SAMPLE_ROWS)).copy()
+        dataset = mlflow.data.from_pandas(
+            dataset_sample,
+            source=str(data_path),
+            name=f"{horizon_name}_model_dataset",
+        )
+        mlflow.log_input(dataset, context="training")
+    except Exception as exc:  # pragma: no cover - depends on optional MLflow dataset backend
+        mlflow.set_tag("training_dataset_logging_error", str(exc)[:250])
+
+
+def _log_training_summary_params(reports_dir: Path) -> None:
+    import mlflow
+
+    selected = _load_optional_table(reports_dir / "selected_models_by_ticker.parquet")
+    ranking = _load_optional_table(reports_dir / "validation_model_ranking.parquet")
+    test = _load_optional_table(reports_dir / "test_prediction_metrics.parquet")
+    params: dict[str, Any] = {}
+    if not selected.empty:
+        params["selected_model_count"] = len(selected)
+        if "ticker" in selected.columns:
+            params["selected_ticker_count"] = int(selected["ticker"].dropna().astype(str).nunique())
+        if "model_name" in selected.columns:
+            params["selected_model_types"] = ",".join(sorted(selected["model_name"].dropna().astype(str).unique()))
+    if not ranking.empty and "model_name" in ranking.columns:
+        params["candidate_model_types"] = ",".join(sorted(ranking["model_name"].dropna().astype(str).unique()))
+    if not test.empty:
+        params["test_result_rows"] = len(test)
+    if params:
+        mlflow.log_params(_mlflow_params(params))
+
+
+def _log_report_tables(reports_dir: Path) -> None:
+    import mlflow
+
+    for artifact_name, filename, max_rows in REPORT_TABLE_ARTIFACTS:
+        frame = _load_optional_table(reports_dir / filename)
+        if frame.empty:
+            continue
+        logged = frame.head(max_rows).copy()
+        mlflow.log_table(_mlflow_table(logged), artifact_file=f"tables/{artifact_name}.json")
+        if len(frame) > len(logged):
+            mlflow.log_metric(f"{artifact_name}_logged_rows", float(len(logged)))
+            mlflow.log_metric(f"{artifact_name}_total_rows", float(len(frame)))
+
+
+def _log_model_training_runs(
+    reports_dir: Path,
+    models_dir: Path,
+    horizon_name: str,
+    horizon: int,
+) -> None:
+    import mlflow
+
+    for payload in _model_training_run_payloads(reports_dir, horizon_name, horizon):
+        ticker = str(payload["ticker"])
+        model_name = str(payload["model_name"])
+        with mlflow.start_run(run_name=f"{horizon_name}-{ticker}-{model_name}", nested=True):
+            mlflow.set_tags(payload["tags"])
+            mlflow.log_params(_mlflow_params(payload["params"]))
+            if payload["metrics"]:
+                mlflow.log_metrics(payload["metrics"])
+
+            final_path = models_dir / safe_filename(model_name) / safe_filename(ticker) / "final.pkl"
+            if final_path.exists():
+                mlflow.log_artifact(str(final_path), artifact_path="final_model")
+
+
+def _model_training_run_payloads(
+    reports_dir: Path,
+    horizon_name: str,
+    horizon: int,
+) -> list[dict[str, Any]]:
+    validation = _load_optional_table(reports_dir / "validation_prediction_metrics.parquet")
+    test = _load_optional_table(reports_dir / "test_prediction_metrics.parquet")
+    ranking = _load_optional_table(reports_dir / "validation_model_ranking.parquet")
+    selected = _load_optional_table(reports_dir / "selected_models_by_ticker.parquet")
+    signal = _load_optional_table(reports_dir / "test_signal_metrics.parquet")
+    best_params = _load_best_params(reports_dir)
+
+    keys = _model_result_keys(validation, test, ranking, selected, signal)
+    selected_keys = _model_result_key_set(selected)
+    payloads = []
+    for ticker, model_name in keys:
+        tags: dict[str, Any] = {
+            "horizon_name": horizon_name,
+            "horizon": str(horizon),
+            "ticker": ticker,
+            "model_name": model_name,
+            "training_protocol": "strict_per_ticker",
+            "is_validation_selected": str((ticker, model_name) in selected_keys).lower(),
+        }
+        params: dict[str, Any] = {
+            "horizon_name": horizon_name,
+            "horizon": horizon,
+            "ticker": ticker,
+            "model_name": model_name,
+        }
+        metrics: dict[str, float] = {}
+
+        validation_row = _first_result_row(validation, ticker, model_name)
+        if validation_row:
+            _add_prefixed_metrics(metrics, validation_row, "validation", MODEL_METRIC_COLUMNS)
+            _copy_param_fields(
+                params,
+                validation_row,
+                ["split_quality", "limited_history", "max_train_rows", "train_start", "train_end"],
+            )
+
+        test_row = _first_result_row(test, ticker, model_name)
+        if test_row:
+            _add_prefixed_metrics(metrics, test_row, "test", MODEL_METRIC_COLUMNS)
+            _add_prefixed_metrics(metrics, test_row, "selection", ["validation_rank", "validation_directional_accuracy"])
+            _copy_param_fields(
+                params,
+                test_row,
+                ["split_quality", "limited_history", "max_train_rows", "train_start", "train_end"],
+            )
+
+        ranking_row = _first_result_row(ranking, ticker, model_name)
+        if ranking_row:
+            _add_prefixed_metrics(metrics, ranking_row, "selection", ["validation_rank", "validation_directional_accuracy"])
+            if "is_validation_selected" in ranking_row:
+                tags["is_validation_selected"] = str(_boolish(ranking_row["is_validation_selected"])).lower()
+
+        for signal_row in _result_rows(signal, ticker, model_name):
+            mode = safe_filename(str(signal_row.get("signal_mode", "signal")))
+            _add_prefixed_metrics(metrics, signal_row, f"test_signal_{mode}", SIGNAL_METRIC_COLUMNS)
+
+        params.update({f"best_param_{key}": value for key, value in best_params.get((ticker, model_name), {}).items()})
+        payloads.append(
+            {
+                "ticker": ticker,
+                "model_name": model_name,
+                "tags": _mlflow_tags(tags),
+                "params": params,
+                "metrics": metrics,
+            }
+        )
+    return payloads
+
+
+def _model_input_example_and_signature(
+    artifact_root: Path,
+    horizon_name: str,
+    bundle_dir: Path,
+) -> tuple[pd.DataFrame | None, Any | None]:
+    input_example = _model_input_example(artifact_root, horizon_name)
+    if input_example is None:
+        return None, None
+    try:
+        from mlflow.models.signature import infer_signature
+
+        router = StockReturnPyFuncRouter()
+        router.load_bundle(bundle_dir)
+        output_example = router.predict(None, input_example)
+        return input_example, infer_signature(input_example, output_example)
+    except Exception:
+        return input_example, None
+
+
+def _model_input_example(artifact_root: Path, horizon_name: str) -> pd.DataFrame | None:
+    data_path = artifact_root / "data" / "horizons" / horizon_name / "model_dataset.parquet"
+    frame = _load_optional_table(data_path)
+    if frame.empty or any(col not in frame.columns for col in REQUIRED_INPUT_COLUMNS):
+        return None
+
+    reports_dir = artifact_root / "horizons" / horizon_name / "strict_protocol" / "reports"
+    selected = _load_optional_table(reports_dir / "selected_models_by_ticker.parquet")
+    if not selected.empty and "ticker" in selected.columns:
+        ticker = str(selected["ticker"].dropna().astype(str).iloc[0])
+        ticker_frame = frame[frame["ticker"].astype(str) == ticker].copy()
+        if not ticker_frame.empty:
+            frame = ticker_frame
+
+    example = frame.sort_values(["ticker", "date"]).tail(180)
+    return example.loc[:, list(REQUIRED_INPUT_COLUMNS)].reset_index(drop=True)
+
+
 def _log_report_metrics(reports_dir: Path) -> None:
     import mlflow
 
@@ -354,6 +607,160 @@ def _load_optional_table(path: Path) -> pd.DataFrame:
         return load_table(path)
     except FileNotFoundError:
         return pd.DataFrame()
+
+
+def _load_best_params(reports_dir: Path) -> dict[tuple[str, str], dict[str, Any]]:
+    json_path = reports_dir / "best_params.json"
+    table_path = reports_dir / "best_params.parquet"
+    records: list[dict[str, Any]] = []
+    if json_path.exists():
+        records = list(load_json(json_path))
+    else:
+        table = _load_optional_table(table_path)
+        if not table.empty:
+            records = table.to_dict(orient="records")
+
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    for record in records:
+        if "ticker" not in record or "model_name" not in record:
+            continue
+        raw_params = record.get("best_params", {})
+        if isinstance(raw_params, str):
+            try:
+                raw_params = json.loads(raw_params)
+            except json.JSONDecodeError:
+                raw_params = {"value": raw_params}
+        if not isinstance(raw_params, dict):
+            raw_params = {"value": raw_params}
+        out[(str(record["ticker"]), str(record["model_name"]))] = raw_params
+    return out
+
+
+def _model_result_keys(*frames: pd.DataFrame) -> list[tuple[str, str]]:
+    keys = set()
+    for frame in frames:
+        if frame.empty or "ticker" not in frame.columns or "model_name" not in frame.columns:
+            continue
+        for row in frame[["ticker", "model_name"]].dropna().drop_duplicates().itertuples(index=False):
+            keys.add((str(row.ticker), str(row.model_name)))
+    return sorted(keys)
+
+
+def _model_result_key_set(frame: pd.DataFrame) -> set[tuple[str, str]]:
+    return set(_model_result_keys(frame))
+
+
+def _first_result_row(frame: pd.DataFrame, ticker: str, model_name: str) -> dict[str, Any]:
+    rows = _result_rows(frame, ticker, model_name)
+    return rows[0] if rows else {}
+
+
+def _result_rows(frame: pd.DataFrame, ticker: str, model_name: str) -> list[dict[str, Any]]:
+    if frame.empty or "ticker" not in frame.columns or "model_name" not in frame.columns:
+        return []
+    matched = frame[
+        (frame["ticker"].astype(str) == str(ticker))
+        & (frame["model_name"].astype(str) == str(model_name))
+    ]
+    return [_json_safe_record(row) for row in matched.to_dict(orient="records")]
+
+
+def _add_prefixed_metrics(
+    target: dict[str, float],
+    row: dict[str, Any],
+    prefix: str,
+    columns: list[str],
+) -> None:
+    for column in columns:
+        value = row.get(column)
+        if _is_finite_number(value):
+            target[_safe_mlflow_name(f"{prefix}_{column}")] = float(value)
+
+
+def _copy_param_fields(target: dict[str, Any], row: dict[str, Any], columns: list[str]) -> None:
+    for column in columns:
+        value = row.get(column)
+        if value is not None and column not in target:
+            target[column] = value
+
+
+def _mlflow_params(params: dict[str, Any]) -> dict[str, str]:
+    out = {}
+    for key, value in params.items():
+        if value is None:
+            continue
+        out[_safe_mlflow_name(key)] = _stringify_mlflow_value(value)
+    return out
+
+
+def _mlflow_tags(tags: dict[str, Any]) -> dict[str, str]:
+    return {str(key): _stringify_mlflow_value(value) for key, value in tags.items() if value is not None}
+
+
+def _mlflow_table(frame: pd.DataFrame) -> pd.DataFrame:
+    out = frame.copy()
+    for column in out.columns:
+        if pd.api.types.is_datetime64_any_dtype(out[column]):
+            out[column] = out[column].map(lambda value: value.isoformat() if pd.notna(value) else None)
+        else:
+            out[column] = out[column].map(_json_table_value)
+    return out
+
+
+def _safe_mlflow_name(value: str) -> str:
+    return safe_filename(str(value)).replace(".", "_")
+
+
+def _stringify_mlflow_value(value: Any) -> str:
+    value = _json_safe_value(value)
+    if isinstance(value, (dict, list)):
+        text = json.dumps(value, sort_keys=True)
+    else:
+        text = str(value)
+    return text[:MLFLOW_PARAM_MAX_LENGTH]
+
+
+def _json_safe_value(value: Any) -> Any:
+    if hasattr(value, "item"):
+        value = value.item()
+    if value is None:
+        return None
+    if isinstance(value, (dict, list, tuple)):
+        pass
+    elif pd.isna(value):
+        return None
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, (pd.Timestamp,)):
+        return value.isoformat()
+    if hasattr(value, "isoformat") and not isinstance(value, str):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(key): _json_safe_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe_value(item) for item in value]
+    return value
+
+
+def _json_table_value(value: Any) -> Any:
+    value = _json_safe_value(value)
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, sort_keys=True)
+    return value
+
+
+def _is_finite_number(value: Any) -> bool:
+    if isinstance(value, bool):
+        return False
+    if hasattr(value, "item"):
+        value = value.item()
+    return isinstance(value, (int, float)) and math.isfinite(float(value))
+
+
+def _boolish(value: Any) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y"}
+    return bool(value)
 
 
 def _robustness_markdown(payload: dict[str, Any]) -> str:
@@ -407,7 +814,10 @@ def _git_status_short() -> str | None:
 
 
 def _run_git(cmd: list[str]) -> str | None:
-    result = subprocess.run(cmd, check=False, text=True, capture_output=True)
+    try:
+        result = subprocess.run(cmd, check=False, text=True, capture_output=True)
+    except OSError:
+        return None
     if result.returncode != 0:
         return None
     return result.stdout.strip()
@@ -422,13 +832,7 @@ def _set_mlflow_tracking_uri(tracking_uri: str) -> None:
 def _json_safe_record(record: dict[str, Any]) -> dict[str, Any]:
     out = {}
     for key, value in record.items():
-        if hasattr(value, "item"):
-            value = value.item()
-        if isinstance(value, float) and not math.isfinite(value):
-            value = None
-        if hasattr(value, "isoformat"):
-            value = value.isoformat()
-        out[str(key)] = value
+        out[str(key)] = _json_safe_value(value)
     return out
 
 

@@ -68,3 +68,14 @@ PYTHONPATH=src pytest
 
 Random split is intentionally not used. Validation is walk-forward only, and per-stock signal metrics use out-of-fold predictions.
 Signal backtests use `signal_anchor="expanding_median"` by default, so each threshold is calibrated only from past rebalance predictions for the same stock. Supported anchors are `expanding_median`, `expanding_mean` and `zero`.
+
+## MLflow
+
+After strict-protocol artifacts exist, register them and publish training results to MLflow:
+
+```bash
+MLFLOW_TRACKING_URI=http://localhost:5000 \
+stock-forecast-train-register-mlflow --artifact-root artifacts --skip-training
+```
+
+The command logs parent runs, per-ticker/model nested runs, metrics tables, report artifacts, model artifacts, and registered pyfunc models for the week and month horizons.
