@@ -19,8 +19,8 @@ services:
     container_name: postman_service
     restart: always
     env_file:
-      - .env
-      - ../.env
+      - path: ../.env
+        required: false
     depends_on:
       postman_db:
         condition: service_started

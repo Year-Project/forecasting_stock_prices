@@ -1,9 +1,13 @@
+import os
+
 import redis.asyncio
 from redis.asyncio import Redis
 
 
 def create_redis_client(username: str, password: str) -> Redis:
-    pool = redis.asyncio.ConnectionPool(host="redis", port=6379, db=0, username=username, password=password,
+    host = os.getenv("REDIS_HOST", "redis")
+    port = int(os.getenv("REDIS_PORT", "6379"))
+    pool = redis.asyncio.ConnectionPool(host=host, port=port, db=0, username=username, password=password,
                                         decode_responses=True)
 
     return redis.asyncio.Redis(connection_pool=pool)

@@ -7,6 +7,10 @@ WORKDIR /home/magician_admin/app
 COPY magician/requirements.txt requirements.txt
 RUN pip3 --no-cache-dir install -r requirements.txt
 
+COPY forecasting/pyproject.toml forecasting/README.md ./forecasting/
+COPY forecasting/src ./forecasting/src
+RUN pip3 --no-cache-dir install "./forecasting[boosting,deep]"
+
 COPY db ./db
 COPY dependencies ./dependencies
 COPY exceptions ./exceptions

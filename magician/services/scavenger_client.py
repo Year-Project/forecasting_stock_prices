@@ -12,15 +12,20 @@ class ScavengerClient:
 
     async def get_candles(
         self,
-        ticker: str,
-        interval: int,
+        ticker: str | None = None,
+        interval: int = 24,
         start: Optional[date] = None,
         end: Optional[date] = None,
+        isin: str | None = None,
     ) -> GetCandlesResponse:
-        params: dict[str, str | int] = {
-            "ticker": ticker,
-            "interval": interval,
-        }
+        if bool(ticker) == bool(isin):
+            raise ValueError("Provide exactly one identifier: ticker or isin.")
+
+        params: dict[str, str | int] = {"interval": interval}
+        if ticker is not None:
+            params["ticker"] = ticker
+        if isin is not None:
+            params["isin"] = isin
         if start is not None:
             params["start"] = start.isoformat()
         if end is not None:

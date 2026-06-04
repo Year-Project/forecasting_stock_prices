@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stock-profit-forecast"
+version = "0.1.0"
+description = "Leakage-safe stock return forecasting and backtesting pipeline."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "joblib",
+  "matplotlib",
+  "mlflow==3.13.0",
+  "numpy",
+  "optuna",
+  "pandas",
+  "pyarrow",
+  "pyyaml",
+  "scikit-learn",
+]
+
+[project.optional-dependencies]
+boosting = ["catboost", "lightgbm", "xgboost"]
+deep = ["torch>=2.0"]
+dev = ["ipykernel", "nbconvert", "nbformat", "pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+stock-forecast-train-register-mlflow = "stock_forecast.mlflow_cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

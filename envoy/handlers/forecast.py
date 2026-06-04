@@ -102,10 +102,13 @@ def setup(forecast_client):
         response_body = response.json()
 
         if response.status_code == 200:
-            await callback.message.answer(f"📈 Прогноз для {response_body["isin"]}\n"
-                                          f"(timeframe = {response_body["time_frame"]} |"
-                                          f" горизонт прогноза = {response_body["forecast_period"]})\n"
-                                          f"Цена: {response_body["forecast_price"]}\n")
+            forecast_return = response_body.get("forecast_return")
+            return_line = f"Доходность: {forecast_return}\n" if forecast_return is not None else ""
+            await callback.message.answer(f"📈 Прогноз для {response_body['isin']}\n"
+                                          f"(timeframe = {response_body['time_frame']} |"
+                                          f" горизонт прогноза = {response_body['forecast_period']})\n"
+                                          f"Цена: {response_body['forecast_price']}\n"
+                                          f"{return_line}")
         elif response.status_code == 201:
             await callback.message.answer("⏳ Прогноз запрошен. Я пришлю результат, когда он будет готов.")
         else:

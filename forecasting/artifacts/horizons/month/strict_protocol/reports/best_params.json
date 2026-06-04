@@ -1,0 +1,1094 @@
+[
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_60"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 0.007982288455243439,
+      "solver": "cholesky",
+      "fit_intercept": false,
+      "tol": 2.9416620246770114e-06
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 135,
+      "learning_rate": 0.0041731595852870906,
+      "l2_regularization": 0.0003968328975926964,
+      "max_leaf_nodes": 3,
+      "max_depth": 8,
+      "min_samples_leaf": 74,
+      "max_bins": 202
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 230,
+      "learning_rate": 0.0011754368938162608,
+      "num_leaves": 43,
+      "max_depth": 4,
+      "min_child_samples": 33,
+      "subsample": 0.8665157090872703,
+      "subsample_freq": 10,
+      "colsample_bytree": 0.6259595702738361,
+      "reg_alpha": 1.8253268729249645e-08,
+      "reg_lambda": 0.009873422445812135,
+      "min_split_gain": 0.011238398364396718
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 379,
+      "learning_rate": 0.0029694999503933595,
+      "max_depth": 2,
+      "min_child_weight": 0.7879063562204076,
+      "subsample": 0.8979166693301739,
+      "colsample_bytree": 0.892133840356038,
+      "reg_alpha": 1.4651590140518564e-05,
+      "reg_lambda": 0.004826346367536524,
+      "gamma": 0.2794300546734013
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 222,
+      "learning_rate": 0.013283377853050192,
+      "depth": 6,
+      "l2_leaf_reg": 1.166150395560116,
+      "random_strength": 5.816891236410209,
+      "bagging_temperature": 6.637583213308552,
+      "border_count": 209,
+      "min_data_in_leaf": 42
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_20"
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 92612.09494840686,
+      "solver": "svd",
+      "fit_intercept": true,
+      "tol": 1.0852806303266287e-06
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 79,
+      "learning_rate": 0.013324328303055327,
+      "l2_regularization": 0.2449535576088669,
+      "max_leaf_nodes": 4,
+      "max_depth": 8,
+      "min_samples_leaf": 84,
+      "max_bins": 52
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 51,
+      "learning_rate": 0.001400376824716215,
+      "num_leaves": 14,
+      "max_depth": 3,
+      "min_child_samples": 20,
+      "subsample": 0.7213319265381006,
+      "subsample_freq": 5,
+      "colsample_bytree": 0.9773701036495637,
+      "reg_alpha": 2.515404401531492e-07,
+      "reg_lambda": 0.011196953643223477,
+      "min_split_gain": 0.24039709743154247
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 100,
+      "learning_rate": 0.0927617644515298,
+      "max_depth": 2,
+      "min_child_weight": 0.24211463287044763,
+      "subsample": 0.6870943846548067,
+      "colsample_bytree": 0.9931983542508687,
+      "reg_alpha": 5.515775208636253e-05,
+      "reg_lambda": 0.011068797523999545,
+      "gamma": 3.525223076563214
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 185,
+      "learning_rate": 0.0033514116691795463,
+      "depth": 3,
+      "l2_leaf_reg": 0.054174839022017536,
+      "random_strength": 8.641415136216885,
+      "bagging_temperature": 0.2878780264798342,
+      "border_count": 203,
+      "min_data_in_leaf": 21
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_60"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 237.51890343471294,
+      "solver": "auto",
+      "fit_intercept": false,
+      "tol": 0.0015734756214065269
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 167,
+      "learning_rate": 0.026587995687607942,
+      "l2_regularization": 0.0001067591931942449,
+      "max_leaf_nodes": 3,
+      "max_depth": 8,
+      "min_samples_leaf": 59,
+      "max_bins": 179
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 183,
+      "learning_rate": 0.013387905820981653,
+      "num_leaves": 3,
+      "max_depth": 2,
+      "min_child_samples": 23,
+      "subsample": 0.5415683656421235,
+      "subsample_freq": 7,
+      "colsample_bytree": 0.7352004062827877,
+      "reg_alpha": 2.4907121912498458e-08,
+      "reg_lambda": 0.003672854583759492,
+      "min_split_gain": 0.6038133315714976
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 73,
+      "learning_rate": 0.003868224591982354,
+      "max_depth": 8,
+      "min_child_weight": 7.521920784949636,
+      "subsample": 0.6392042692109885,
+      "colsample_bytree": 0.8714162853336298,
+      "reg_alpha": 2.9113105254604276e-06,
+      "reg_lambda": 43.93321663514774,
+      "gamma": 0.5456769147249751
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 239,
+      "learning_rate": 0.010026128020027171,
+      "depth": 2,
+      "l2_leaf_reg": 0.2474044710912656,
+      "random_strength": 3.4169574956445214,
+      "bagging_temperature": 2.111869273946229,
+      "border_count": 83,
+      "min_data_in_leaf": 26
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_60"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 931.3810445599902,
+      "solver": "cholesky",
+      "fit_intercept": true,
+      "tol": 9.996239199746929e-05
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 151,
+      "learning_rate": 0.002262613118082613,
+      "l2_regularization": 0.051499703808948284,
+      "max_leaf_nodes": 16,
+      "max_depth": 3,
+      "min_samples_leaf": 55,
+      "max_bins": 58
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 241,
+      "learning_rate": 0.02047193535953395,
+      "num_leaves": 64,
+      "max_depth": 6,
+      "min_child_samples": 6,
+      "subsample": 0.8673348208661911,
+      "subsample_freq": 4,
+      "colsample_bytree": 0.9966509323551664,
+      "reg_alpha": 4.771148366790576e-08,
+      "reg_lambda": 0.01760960496179736,
+      "min_split_gain": 0.030543773932258378
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 238,
+      "learning_rate": 0.03694517532105188,
+      "max_depth": 3,
+      "min_child_weight": 13.949596249664605,
+      "subsample": 0.8825350404581027,
+      "colsample_bytree": 0.8339592994849305,
+      "reg_alpha": 8.768170235176824e-06,
+      "reg_lambda": 73.49199812359728,
+      "gamma": 0.4866627273499663
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 114,
+      "learning_rate": 0.0015946199712750617,
+      "depth": 7,
+      "l2_leaf_reg": 1.3030442796787736,
+      "random_strength": 0.9167787598033907,
+      "bagging_temperature": 8.640006405538497,
+      "border_count": 49,
+      "min_data_in_leaf": 43
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_10"
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 0.001285322465028165,
+      "solver": "svd",
+      "fit_intercept": false,
+      "tol": 2.4036390973743644e-06
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 345,
+      "learning_rate": 0.008075276922384356,
+      "l2_regularization": 0.09180905635241382,
+      "max_leaf_nodes": 8,
+      "max_depth": 4,
+      "min_samples_leaf": 18,
+      "max_bins": 200
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 294,
+      "learning_rate": 0.001956208457958117,
+      "num_leaves": 62,
+      "max_depth": 6,
+      "min_child_samples": 98,
+      "subsample": 0.931120512462136,
+      "subsample_freq": 2,
+      "colsample_bytree": 0.7879952377244157,
+      "reg_alpha": 4.6872026245946823e-07,
+      "reg_lambda": 9.332819681804613,
+      "min_split_gain": 0.8836089860793168
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 55,
+      "learning_rate": 0.0061474978834737395,
+      "max_depth": 2,
+      "min_child_weight": 0.2100769884401489,
+      "subsample": 0.838384039258685,
+      "colsample_bytree": 0.758846464926928,
+      "reg_alpha": 0.00019824136134421452,
+      "reg_lambda": 0.0031701687767111495,
+      "gamma": 0.42996970175016636
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 149,
+      "learning_rate": 0.04468019510554819,
+      "depth": 2,
+      "l2_leaf_reg": 6.77317974623975,
+      "random_strength": 6.006841552367699,
+      "bagging_temperature": 7.614704618273751,
+      "border_count": 140,
+      "min_data_in_leaf": 16
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_60"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 0.008624726073122398,
+      "solver": "auto",
+      "fit_intercept": false,
+      "tol": 2.9978661455168883e-05
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 395,
+      "learning_rate": 0.07054262374785945,
+      "l2_regularization": 0.06469959406012513,
+      "max_leaf_nodes": 24,
+      "max_depth": 3,
+      "min_samples_leaf": 65,
+      "max_bins": 52
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 255,
+      "learning_rate": 0.032903023150230415,
+      "num_leaves": 38,
+      "max_depth": 10,
+      "min_child_samples": 53,
+      "subsample": 0.8530103534548831,
+      "subsample_freq": 10,
+      "colsample_bytree": 0.6762631642882433,
+      "reg_alpha": 1.783801232460041e-06,
+      "reg_lambda": 0.00853834268558903,
+      "min_split_gain": 0.10986700079807096
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 36,
+      "learning_rate": 0.09915755257366746,
+      "max_depth": 5,
+      "min_child_weight": 2.1365864519413837,
+      "subsample": 0.595831303628962,
+      "colsample_bytree": 0.7112182346591056,
+      "reg_alpha": 5.983130024822446e-05,
+      "reg_lambda": 0.525708710938119,
+      "gamma": 0.20572272794080604
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 351,
+      "learning_rate": 0.0521464419457371,
+      "depth": 2,
+      "l2_leaf_reg": 2.262089283338441,
+      "random_strength": 8.150119192282553,
+      "bagging_temperature": 5.70514714732344,
+      "border_count": 193,
+      "min_data_in_leaf": 43
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_60"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 63335.20693343813,
+      "solver": "lsqr",
+      "fit_intercept": true,
+      "tol": 0.0006987344185090329
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 172,
+      "learning_rate": 0.0010684429771539677,
+      "l2_regularization": 0.031191897664946833,
+      "max_leaf_nodes": 18,
+      "max_depth": 2,
+      "min_samples_leaf": 41,
+      "max_bins": 213
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "lightgbm",
+    "best_params": {
+      "objective": "regression",
+      "verbosity": -1,
+      "force_col_wise": true,
+      "n_jobs": 1,
+      "n_estimators": 56,
+      "learning_rate": 0.0020409075812125622,
+      "num_leaves": 38,
+      "max_depth": -1,
+      "min_child_samples": 80,
+      "subsample": 0.5536703838097031,
+      "subsample_freq": 4,
+      "colsample_bytree": 0.5664965132732975,
+      "reg_alpha": 0.30464553881941603,
+      "reg_lambda": 99.87095440979171,
+      "min_split_gain": 0.9045214012944891
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "xgboost",
+    "best_params": {
+      "objective": "reg:squarederror",
+      "verbosity": 0,
+      "n_jobs": 1,
+      "n_estimators": 85,
+      "learning_rate": 0.009384044913325413,
+      "max_depth": 7,
+      "min_child_weight": 4.70655897111506,
+      "subsample": 0.56710418227556,
+      "colsample_bytree": 0.7013783721192717,
+      "reg_alpha": 0.03322755204116648,
+      "reg_lambda": 0.0014256022350621236,
+      "gamma": 1.7144504491827646
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "catboost",
+    "best_params": {
+      "loss_function": "RMSE",
+      "verbose": false,
+      "allow_writing_files": false,
+      "thread_count": 1,
+      "grow_policy": "Depthwise",
+      "iterations": 113,
+      "learning_rate": 0.0017291500106222223,
+      "depth": 2,
+      "l2_leaf_reg": 20.350064493562584,
+      "random_strength": 7.96737395178392,
+      "bagging_temperature": 0.5683667553835703,
+      "border_count": 38,
+      "min_data_in_leaf": 30
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "CBOM",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 20,
+      "hidden_size": 32,
+      "num_layers": 1,
+      "input_projection_size": 32,
+      "lstm_dropout": 0.11023143424888439,
+      "head_dropout": 0.48019543702415357,
+      "learning_rate": 0.00102707695916667,
+      "weight_decay": 0.00042479112754838786,
+      "batch_size": 32,
+      "loss": "mse",
+      "huber_beta": 0.08,
+      "feature_clip": 8.0,
+      "grad_clip_norm": 1.5435274241527852,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "MBNK",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 20,
+      "hidden_size": 96,
+      "num_layers": 1,
+      "input_projection_size": 32,
+      "lstm_dropout": 0.07977730688967959,
+      "head_dropout": 0.32084311545050254,
+      "learning_rate": 0.001159475956637248,
+      "weight_decay": 0.0038211294416912265,
+      "batch_size": 32,
+      "loss": "smooth_l1",
+      "huber_beta": 0.08,
+      "feature_clip": 5.0,
+      "grad_clip_norm": 1.957673124081441,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "SBER",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 20,
+      "hidden_size": 96,
+      "num_layers": 2,
+      "input_projection_size": 32,
+      "lstm_dropout": 0.05135554113479226,
+      "head_dropout": 0.305695608291459,
+      "learning_rate": 0.0005467882865523156,
+      "weight_decay": 0.0029629458162863977,
+      "batch_size": 128,
+      "loss": "mse",
+      "huber_beta": 0.12,
+      "feature_clip": 8.0,
+      "grad_clip_norm": 1.829179719466788,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "SBERP",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 40,
+      "hidden_size": 96,
+      "num_layers": 1,
+      "input_projection_size": 32,
+      "lstm_dropout": 0.22441320050161792,
+      "head_dropout": 0.3711528181843063,
+      "learning_rate": 0.00023219745496021134,
+      "weight_decay": 0.0002298077457387698,
+      "batch_size": 64,
+      "loss": "smooth_l1",
+      "huber_beta": 0.12,
+      "feature_clip": 5.0,
+      "grad_clip_norm": 0.5933172101887122,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "SVCB",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 40,
+      "hidden_size": 128,
+      "num_layers": 1,
+      "input_projection_size": 0,
+      "lstm_dropout": 0.20610609890297882,
+      "head_dropout": 0.3012623092322569,
+      "learning_rate": 0.00020134566257197422,
+      "weight_decay": 0.00024396054438301137,
+      "batch_size": 32,
+      "loss": "mse",
+      "huber_beta": 0.12,
+      "feature_clip": 5.0,
+      "grad_clip_norm": 1.1135016066054855,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "T",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 90,
+      "hidden_size": 32,
+      "num_layers": 1,
+      "input_projection_size": 128,
+      "lstm_dropout": 0.08191963094232219,
+      "head_dropout": 0.5258646406150247,
+      "learning_rate": 0.0008556001066965248,
+      "weight_decay": 0.006120801597261504,
+      "batch_size": 32,
+      "loss": "smooth_l1",
+      "huber_beta": 0.08,
+      "feature_clip": 8.0,
+      "grad_clip_norm": 1.0015172633023834,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02b_lstm_forecasting",
+    "lstm_only_run": true,
+    "ticker": "VTBR",
+    "model_name": "lstm",
+    "best_params": {
+      "max_epochs": 150,
+      "patience": 15,
+      "device": "auto",
+      "lookback": 90,
+      "hidden_size": 96,
+      "num_layers": 2,
+      "input_projection_size": 0,
+      "lstm_dropout": 0.2883453870818123,
+      "head_dropout": 0.40612989071346045,
+      "learning_rate": 0.0004024277022710406,
+      "weight_decay": 0.007456593093884168,
+      "batch_size": 128,
+      "loss": "mse",
+      "huber_beta": 0.08,
+      "feature_clip": 5.0,
+      "grad_clip_norm": 1.9075071654925488,
+      "ensemble_seeds": [
+        1,
+        7,
+        21,
+        42,
+        101
+      ]
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  }
+]

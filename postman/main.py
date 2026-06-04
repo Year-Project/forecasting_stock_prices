@@ -13,6 +13,7 @@ from postman.src.kafka.forecast_request_producer import ForecastRequestProducer
 from postman.src.kafka.forecast_publish_producer import ForecastPublishProducer
 from postman.src.kafka.forecast_response_consumer import ForecastResponseConsumer
 from db.redis.cache import create_redis_client
+from kafka.topics import ensure_kafka_topics
 from postman.src.dependencies import set_forecast_request_producer, set_forecast_publish_producer, \
     set_forecast_response_consumer, get_forecast_requests_session_maker
 from dependencies.dependencies import db_registry
@@ -43,6 +44,12 @@ async def lifespan(app: FastAPI):
         )
     )
     db_registry.register("forecast_requests", os.getenv("POSTMAN_DATABASE_URL"))
+
+    await ensure_kafka_topics(
+        KAFKA_BOOTSTRAP_SERVERS,
+        KAFKA_SECURITY_PROTOCOL,
+        [KAFKA_FORECAST_REQUEST_TOPIC, KAFKA_FORECAST_RESPONSE_TOPIC, KAFKA_FORECAST_PUBLISH_TOPIC],
+    )
 
     producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, security_protocol=KAFKA_SECURITY_PROTOCOL)
     await producer.start()

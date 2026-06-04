@@ -6,8 +6,8 @@ services:
     container_name: scavenger_service
     restart: always
     env_file:
-      - .env
-      - ../.env
+      - path: ../.env
+        required: false
     depends_on:
       kafka-1:
         condition: service_healthy

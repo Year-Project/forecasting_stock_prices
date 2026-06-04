@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 
 from aiogram import Bot, Dispatcher
@@ -17,6 +18,11 @@ COMMANDS = [
 
 
 async def main():
+    if os.getenv("ENVOY_BOT_ENABLED", "true").lower() not in {"1", "true", "yes", "on"}:
+        logging.basicConfig(level=logging.INFO)
+        logging.info("Envoy bot is disabled by ENVOY_BOT_ENABLED=false")
+        await asyncio.Event().wait()
+
     bot = Bot(os.getenv("BOT_TOKEN"))
     dp = Dispatcher()
 

@@ -10,7 +10,8 @@ services:
     image: apache/kafka-native
     container_name: kafka-1
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -38,7 +39,8 @@ services:
     image: apache/kafka-native
     container_name: kafka-2
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: broker,controller
@@ -66,7 +68,8 @@ services:
     image: apache/kafka-native
     container_name: kafka-3
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       KAFKA_NODE_ID: 3
       KAFKA_PROCESS_ROLES: broker,controller
@@ -96,7 +99,8 @@ services:
       ports:
         - 8080:8080
       env_file:
-        - .env
+        - path: .env
+          required: false
       environment:
         DYNAMIC_CONFIG_ENABLED: "true"
         KAFKA_CLUSTERS_0_NAME: local
@@ -115,21 +119,48 @@ services:
     container_name: redis
     restart: always
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - ./db/redis/redis.conf:/usr/local/etc/redis/redis.conf
       - ./db/redis/entrypoint.sh:/usr/local/bin/entrypoint.sh
       - redis_data:/data
-    entrypoint: ["/usr/local/bin/entrypoint.sh"]
+    entrypoint: ["/bin/sh", "/usr/local/bin/entrypoint.sh"]
     networks:
       - internal_network
 
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.13.0
+    container_name: mlflow
+    restart: always
+    working_dir: /
+    command:
+      - mlflow
+      - server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --allowed-hosts
+      - localhost,localhost:5000,127.0.0.1,127.0.0.1:5000,mlflow,mlflow:5000
+      - --backend-store-uri
+      - sqlite:///mlflow/mlflow.db
+      - --default-artifact-root
+      - /mlflow/artifacts
+    ports:
+      - 5000:5000
+    volumes:
+      - mlflow_data:/mlflow
+    networks:
+      - public_network
+      - internal_network
 
 volumes:
   kafka1_data:
   kafka2_data:
   kafka3_data:
   redis_data:
+  mlflow_data:
 
 networks:
   public_network:
