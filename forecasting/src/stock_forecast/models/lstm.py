@@ -26,6 +26,8 @@ class SequenceSamples:
     x: np.ndarray
     y: np.ndarray | None
     end_index: list[Any]
+    end_date: list[pd.Timestamp]
+    ticker: list[str]
 
 
 def build_lstm_sequence_samples(
@@ -47,11 +49,14 @@ def build_lstm_sequence_samples(
     x_values: list[np.ndarray] = []
     y_values: list[float] = []
     end_index: list[Any] = []
-    for _, group in frame.sort_values(["ticker", "date"]).groupby("ticker", sort=False):
+    end_dates: list[pd.Timestamp] = []
+    tickers: list[str] = []
+    for ticker, group in frame.sort_values(["ticker", "date"]).groupby("ticker", sort=False):
         group = group.sort_values("date")
         features = group[feature_cols].to_numpy(dtype=float)
         targets = group[target_col].to_numpy(dtype=float) if target_col is not None else None
         indices = list(group.index)
+        dates = pd.to_datetime(group["date"]).tolist()
         if len(group) < lookback:
             continue
         for end_pos in range(lookback - 1, len(group)):
@@ -61,6 +66,8 @@ def build_lstm_sequence_samples(
             if targets is not None:
                 y_values.append(float(targets[end_pos]))
             end_index.append(indices[end_pos])
+            end_dates.append(pd.Timestamp(dates[end_pos]))
+            tickers.append(str(ticker))
 
     if not x_values:
         n_features = len(feature_cols)
@@ -68,11 +75,15 @@ def build_lstm_sequence_samples(
             x=np.empty((0, lookback, n_features), dtype=np.float32),
             y=np.empty((0,), dtype=np.float32) if target_col is not None else None,
             end_index=[],
+            end_date=[],
+            ticker=[],
         )
     return SequenceSamples(
         x=np.asarray(x_values, dtype=np.float32),
         y=np.asarray(y_values, dtype=np.float32) if target_col is not None else None,
         end_index=end_index,
+        end_date=end_dates,
+        ticker=tickers,
     )
 
 
@@ -147,6 +158,8 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
         patience: int = 15,
         validation_fraction: float = 0.2,
         feature_clip: float = 5.0,
+        target_normalization: str = "global",
+        balanced_ticker_sampling: bool = False,
         device: str = "auto",
         random_state: int = 42,
         ensemble_seeds: list[int] | tuple[int, ...] | None = None,
@@ -168,6 +181,8 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
         self.patience = patience
         self.validation_fraction = validation_fraction
         self.feature_clip = feature_clip
+        self.target_normalization = target_normalization
+        self.balanced_ticker_sampling = balanced_ticker_sampling
         self.device = device
         self.random_state = random_state
         self.ensemble_seeds = ensemble_seeds
@@ -200,12 +215,32 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
             return self
 
         y_values = samples.y.astype(np.float32)
-        self.target_mean_ = float(np.mean(y_values))
-        target_std = float(np.std(y_values))
-        self.target_scale_ = target_std if target_std > 1e-8 else 1.0
-        y_scaled = ((y_values - self.target_mean_) / self.target_scale_).astype(np.float32)
+        sample_tickers = np.asarray(samples.ticker, dtype=object)
+        self.target_stats_ = _target_normalization_stats(
+            y_values,
+            sample_tickers,
+            str(self.target_normalization),
+        )
+        self.target_mean_ = float(self.target_stats_["__global__"]["mean"])
+        self.target_scale_ = float(self.target_stats_["__global__"]["scale"])
+        y_scaled = _scale_targets(
+            y_values,
+            sample_tickers,
+            self.target_stats_,
+            str(self.target_normalization),
+        )
 
-        train_idx, valid_idx = _chronological_sequence_split(len(y_scaled), float(self.validation_fraction))
+        train_idx, valid_idx = _chronological_sequence_split_by_date(
+            samples.end_date,
+            float(self.validation_fraction),
+        )
+        balanced_info = None
+        if bool(self.balanced_ticker_sampling):
+            train_idx, balanced_info = _balanced_ticker_indices(
+                train_idx,
+                sample_tickers,
+                random_state=int(self.random_state),
+            )
         x_train = samples.x[train_idx]
         y_train = y_scaled[train_idx]
         x_valid = samples.x[valid_idx] if len(valid_idx) else samples.x[train_idx]
@@ -258,6 +293,9 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
             "validation_loss": first_history.get("validation_loss", []),
             "member_histories": member_histories,
             "device": str(device),
+            "target_normalization": str(self.target_normalization),
+            "balanced_ticker_sampling": bool(self.balanced_ticker_sampling),
+            "balanced_ticker_sampling_info": balanced_info,
         }
         return self
 
@@ -282,7 +320,7 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
         )
         combined = self._transform_frame(combined)
 
-        sequences, orders = self._prediction_sequences(combined)
+        sequences, orders, tickers = self._prediction_sequences(combined)
         predictions = np.full(len(pred_frame), float(self.fallback_), dtype=float)
         if len(sequences) == 0:
             return predictions
@@ -303,7 +341,12 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
                     values.append(pred)
                 member_predictions.append(np.concatenate(values) if values else np.empty((0,), dtype=float))
         scaled_pred = np.mean(np.vstack(member_predictions), axis=0) if member_predictions else np.empty((0,), dtype=float)
-        return_pred = scaled_pred * float(self.target_scale_) + float(self.target_mean_)
+        return_pred = _inverse_scale_targets(
+            scaled_pred,
+            np.asarray(tickers, dtype=object),
+            self.target_stats_,
+            str(self.target_normalization),
+        )
         predictions[np.asarray(orders, dtype=int)] = return_pred
         return np.nan_to_num(predictions, nan=float(self.fallback_), posinf=float(self.fallback_), neginf=float(self.fallback_))
 
@@ -325,10 +368,11 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
         out.loc[:, self.feature_cols_] = transformed
         return out
 
-    def _prediction_sequences(self, frame: pd.DataFrame) -> tuple[np.ndarray, list[int]]:
+    def _prediction_sequences(self, frame: pd.DataFrame) -> tuple[np.ndarray, list[int], list[str]]:
         x_values = []
         orders = []
-        for _, group in frame.sort_values(["ticker", "date"]).groupby("ticker", sort=False):
+        tickers = []
+        for ticker, group in frame.sort_values(["ticker", "date"]).groupby("ticker", sort=False):
             group = group.sort_values("date")
             features = group[self.feature_cols_].to_numpy(dtype=np.float32)
             is_prediction = group["_is_prediction"].to_numpy(dtype=bool)
@@ -342,9 +386,10 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
                 if np.isfinite(seq).all():
                     x_values.append(seq)
                     orders.append(int(order[end_pos]))
+                    tickers.append(str(ticker))
         if not x_values:
-            return np.empty((0, int(self.lookback), len(self.feature_cols_)), dtype=np.float32), []
-        return np.asarray(x_values, dtype=np.float32), orders
+            return np.empty((0, int(self.lookback), len(self.feature_cols_)), dtype=np.float32), [], []
+        return np.asarray(x_values, dtype=np.float32), orders, tickers
 
     def _validate_params(self) -> None:
         if int(self.lookback) <= 0:
@@ -361,6 +406,8 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
             raise ValueError("huber_beta must be positive")
         if float(self.feature_clip) < 0:
             raise ValueError("feature_clip must be non-negative")
+        if str(self.target_normalization) not in {"global", "per_ticker"}:
+            raise ValueError("target_normalization must be one of: global, per_ticker")
         _ensemble_seed_values(self.ensemble_seeds, int(self.random_state))
 
 
@@ -403,6 +450,118 @@ def _chronological_sequence_split(n_rows: int, validation_fraction: float) -> tu
         valid_size = 1
     train_end = n_rows - valid_size
     return np.arange(train_end), np.arange(train_end, n_rows)
+
+
+def _chronological_sequence_split_by_date(
+    end_dates: list[pd.Timestamp],
+    validation_fraction: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    n_rows = len(end_dates)
+    if n_rows <= 2 or not 0.0 < validation_fraction < 1.0:
+        idx = np.arange(n_rows)
+        return idx, np.array([], dtype=int)
+
+    dates = pd.to_datetime(pd.Series(end_dates))
+    unique_dates = np.asarray(sorted(dates.dropna().unique()))
+    if len(unique_dates) <= 2:
+        return _chronological_sequence_split(n_rows, validation_fraction)
+
+    valid_date_count = max(1, int(round(len(unique_dates) * validation_fraction)))
+    if len(unique_dates) - valid_date_count < 1:
+        valid_date_count = 1
+    cutoff_date = pd.Timestamp(unique_dates[-valid_date_count])
+    train_idx = np.flatnonzero((dates < cutoff_date).to_numpy())
+    valid_idx = np.flatnonzero((dates >= cutoff_date).to_numpy())
+    if len(train_idx) == 0 or len(valid_idx) == 0:
+        order = np.argsort(dates.to_numpy(dtype="datetime64[ns]"))
+        valid_size = max(1, int(round(n_rows * validation_fraction)))
+        return order[:-valid_size], order[-valid_size:]
+    return train_idx, valid_idx
+
+
+def _balanced_ticker_indices(
+    train_idx: np.ndarray,
+    sample_tickers: np.ndarray,
+    random_state: int,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    if len(train_idx) == 0:
+        return train_idx, {"enabled": True, "before": {}, "after": {}}
+
+    rng = np.random.default_rng(random_state)
+    ticker_values = sample_tickers[train_idx]
+    before = {str(ticker): int((ticker_values == ticker).sum()) for ticker in sorted(set(ticker_values))}
+    max_count = max(before.values() or [0])
+    balanced_parts = []
+    for ticker in sorted(before):
+        idx = train_idx[ticker_values == ticker]
+        if len(idx) == 0:
+            continue
+        replace = len(idx) < max_count
+        balanced_parts.append(rng.choice(idx, size=max_count, replace=replace))
+    if not balanced_parts:
+        return train_idx, {"enabled": True, "before": before, "after": {}}
+
+    balanced = np.concatenate(balanced_parts).astype(int)
+    rng.shuffle(balanced)
+    balanced_tickers = sample_tickers[balanced]
+    after = {str(ticker): int((balanced_tickers == ticker).sum()) for ticker in sorted(set(balanced_tickers))}
+    return balanced, {"enabled": True, "before": before, "after": after}
+
+
+def _target_normalization_stats(
+    values: np.ndarray,
+    tickers: np.ndarray,
+    mode: str,
+) -> dict[str, dict[str, float]]:
+    stats = {"__global__": _mean_scale(values)}
+    if mode != "per_ticker":
+        return stats
+    for ticker in sorted(set(map(str, tickers))):
+        mask = tickers.astype(str) == ticker
+        stats[str(ticker)] = _mean_scale(values[mask])
+    return stats
+
+
+def _mean_scale(values: np.ndarray) -> dict[str, float]:
+    finite = np.asarray(values, dtype=float)
+    finite = finite[np.isfinite(finite)]
+    if len(finite) == 0:
+        return {"mean": 0.0, "scale": 1.0}
+    mean = float(np.mean(finite))
+    std = float(np.std(finite))
+    return {"mean": mean, "scale": std if std > 1e-8 else 1.0}
+
+
+def _scale_targets(
+    values: np.ndarray,
+    tickers: np.ndarray,
+    stats: dict[str, dict[str, float]],
+    mode: str,
+) -> np.ndarray:
+    if mode == "global":
+        global_stats = stats["__global__"]
+        return ((values - global_stats["mean"]) / global_stats["scale"]).astype(np.float32)
+    out = np.empty_like(values, dtype=np.float32)
+    for idx, value in enumerate(values):
+        ticker_stats = stats.get(str(tickers[idx]), stats["__global__"])
+        out[idx] = (float(value) - ticker_stats["mean"]) / ticker_stats["scale"]
+    return out
+
+
+def _inverse_scale_targets(
+    values: np.ndarray,
+    tickers: np.ndarray,
+    stats: dict[str, dict[str, float]],
+    mode: str,
+) -> np.ndarray:
+    if mode == "global":
+        global_stats = stats["__global__"]
+        return values.astype(float) * global_stats["scale"] + global_stats["mean"]
+    out = np.empty_like(values, dtype=float)
+    for idx, value in enumerate(values):
+        ticker_stats = stats.get(str(tickers[idx]), stats["__global__"])
+        out[idx] = float(value) * ticker_stats["scale"] + ticker_stats["mean"]
+    return out
 
 
 def _torch_modules():

@@ -10,6 +10,7 @@ from stock_forecast.strict_protocol import (
     _limited_history_config,
     _post_selection_params,
     make_strict_outer_splits,
+    run_strict_global_lstm_protocol,
     run_strict_per_ticker_protocol,
 )
 from stock_forecast.targets import make_future_return_target
@@ -84,6 +85,18 @@ def _tiny_lstm_config(feature_cols):
         "feature_cols": feature_cols,
         "needs_scaler": False,
     }
+
+
+def _tiny_global_lstm_config(feature_cols):
+    config = _tiny_lstm_config(feature_cols)
+    config["name"] = "global_lstm"
+    config["static_params"] = {
+        **config["static_params"],
+        "max_epochs": 1,
+        "target_normalization": "per_ticker",
+        "balanced_ticker_sampling": True,
+    }
+    return config
 
 
 def test_strict_outer_split_boundaries_and_purge_inputs():
@@ -241,6 +254,41 @@ def test_strict_protocol_supports_full_frame_lstm_model(tmp_path):
         assert payload["feature_cols"] == feature_cols
 
 
+def test_strict_global_lstm_protocol_writes_one_global_model_and_passes_audit(tmp_path):
+    pytest.importorskip("torch")
+    df, feature_cols, target_col = _synthetic_dataset(periods=150)
+    result = run_strict_global_lstm_protocol(
+        df,
+        feature_cols,
+        target_col,
+        [_tiny_global_lstm_config(feature_cols)],
+        tmp_path,
+        force_retrain=True,
+        run_metadata={"horizon_name": "week", "horizon": 5},
+        validation_rows=15,
+        test_rows=15,
+        mature_min_rows=100,
+        min_train_rows=50,
+        max_train_rows=80,
+        inner_max_folds=1,
+        inner_min_train_rows=40,
+        inner_validation_window=10,
+        threshold_grid=[0.0],
+        min_validation_trades=1,
+    )
+
+    assert set(result["test_predictions"]["model_name"]) == {"global_lstm"}
+    assert set(result["test_predictions"]["ticker"]) == {"A", "B"}
+    assert not result["test_panel_signal_metrics"].empty
+    assert bool(result["leakage_audit"]["passed"].all())
+
+    path = tmp_path / "strict_protocol" / "models" / "global_lstm" / "final.pkl"
+    payload = joblib.load(path)
+    assert payload["training_scope"] == "global_lstm_strict_final"
+    assert payload["ticker"] == "__global__"
+    assert pd.Timestamp(payload["max_train_target_date"]) < result["global_test_start"]
+
+
 def test_strict_limited_history_config_overrides_search_space_and_trials():
     config = {
         "name": "lstm",
@@ -275,6 +323,11 @@ def test_model_comparison_notebook_uses_strict_artifacts_and_full_metric_compari
     assert 'PRIMARY_METRIC = \\"directional_accuracy\\"' in notebook
     assert "test_predictions.parquet" in notebook
     assert "validation_signal_metrics.parquet" in notebook
+    assert "global_lstm/strict_protocol/reports" in notebook
+    assert "GLOBAL_LSTM_ARTIFACT_NAME" in notebook
+    assert "test_panel_signal_metrics.parquet" in notebook
+    assert "comparison_test_signal_metrics.parquet" in notebook
+    assert "comparison_test_panel_signal_metrics.parquet" in notebook
     assert "validation_model_metric_comparison.parquet" in notebook
     assert "Validation-vs-test model metric comparison" in notebook
     assert "## Test Predicted Vs Actual And Distributions For Each Ticker" in notebook
@@ -300,8 +353,10 @@ def test_table_model_forecasting_notebook_uses_directional_accuracy_selection():
 
 def test_lstm_notebook_and_report_sources_are_registered():
     lstm_eda = Path("forecasting/notebooks/01b_lstm_eda.ipynb").read_text()
+    global_lstm_eda = Path("forecasting/notebooks/01c_global_lstm_eda.ipynb").read_text()
     training = Path("forecasting/notebooks/02_table_model_forecasting.ipynb").read_text()
     lstm_only_training = Path("forecasting/notebooks/02b_lstm_forecasting.ipynb").read_text()
+    global_lstm_training = Path("forecasting/notebooks/02c_global_lstm_forecasting.ipynb").read_text()
     comparison = Path("forecasting/notebooks/03_model_comparison.ipynb").read_text()
 
     assert "make_lstm_features" in lstm_eda
@@ -319,5 +374,15 @@ def test_lstm_notebook_and_report_sources_are_registered():
     assert "_strict_metrics" in lstm_only_training
     assert "_validation_ranking" in lstm_only_training
     assert "FORCE_RETRAIN" in lstm_only_training
+    assert "GLOBAL_LSTM_DATA_DIR" in global_lstm_eda
+    assert "ticker_onehot_columns" in global_lstm_eda
+    assert "global_stationary" in global_lstm_eda
+    assert "global_sequence_diagnostics.json" in global_lstm_eda
+    assert "run_strict_global_lstm_protocol" in global_lstm_training
+    assert "validation_threshold_search" in global_lstm_training
+    assert "test_panel_signal_metrics" in global_lstm_training
+    assert "02c_global_lstm_forecasting" in global_lstm_training
     assert "lstm_hyperparameter_summary" in comparison
     assert "LSTM Hyperparameter Summary" in comparison
+    assert "global_lstm" in comparison
+    assert "test_panel_signal_metrics" in comparison

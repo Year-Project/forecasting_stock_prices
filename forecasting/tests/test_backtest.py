@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from stock_forecast.backtest import run_per_ticker_signal_backtest
+from stock_forecast.backtest import run_panel_signal_backtest, run_per_ticker_signal_backtest
 
 
 def test_per_ticker_signal_backtest_keeps_tickers_separate():
@@ -28,6 +28,31 @@ def test_per_ticker_signal_backtest_keeps_tickers_separate():
     assert equity.loc[equity["ticker"] == "A", "position"].tolist() == [1, 0]
     assert equity.loc[equity["ticker"] == "B", "position"].tolist() == [0, 1]
     assert np.isfinite(metrics.loc[metrics["ticker"] == "A", "cumulative_return"]).all()
+
+
+def test_panel_signal_backtest_builds_equal_weight_panel():
+    predictions = pd.DataFrame(
+        [
+            {"date": "2024-01-01", "target_date": "2024-01-02", "ticker": "A", "model_name": "m", "y_true": 0.02, "y_pred": 0.03},
+            {"date": "2024-01-01", "target_date": "2024-01-02", "ticker": "B", "model_name": "m", "y_true": 0.01, "y_pred": -0.01},
+            {"date": "2024-01-02", "target_date": "2024-01-03", "ticker": "A", "model_name": "m", "y_true": -0.01, "y_pred": -0.02},
+            {"date": "2024-01-02", "target_date": "2024-01-03", "ticker": "B", "model_name": "m", "y_true": 0.03, "y_pred": 0.04},
+        ]
+    )
+    predictions["date"] = pd.to_datetime(predictions["date"])
+    predictions["target_date"] = pd.to_datetime(predictions["target_date"])
+
+    equity, metrics = run_panel_signal_backtest(
+        predictions,
+        horizon=1,
+        transaction_cost_bps=0,
+        slippage_bps=0,
+    )
+
+    assert set(equity["ticker"]) == {"__panel__"}
+    assert metrics["ticker"].tolist() == ["__panel__"]
+    assert equity["active_tickers"].tolist() == [2, 2]
+    assert equity["net_return"].tolist() == pytest.approx([0.01, 0.015])
 
 
 def test_per_ticker_signal_backtest_can_trade_with_negative_biased_predictions():

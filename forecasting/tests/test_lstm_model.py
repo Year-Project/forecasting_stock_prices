@@ -5,7 +5,11 @@ import pytest
 pytest.importorskip("torch")
 
 from stock_forecast.lstm_features import get_lstm_feature_columns, make_lstm_features
-from stock_forecast.models.lstm import LSTMReturnRegressor, build_lstm_sequence_samples
+from stock_forecast.models.lstm import (
+    LSTMReturnRegressor,
+    _chronological_sequence_split_by_date,
+    build_lstm_sequence_samples,
+)
 
 
 def _ohlcv_frame(periods: int = 80) -> pd.DataFrame:
@@ -57,6 +61,27 @@ def test_lstm_sequence_builder_never_crosses_ticker_boundaries():
     assert samples.x.shape == (6, 3, 1)
     assert samples.x[0, :, 0].tolist() == [0.0, 1.0, 2.0]
     assert samples.x[3, :, 0].tolist() == [100.0, 101.0, 102.0]
+    assert samples.ticker == ["A", "A", "A", "B", "B", "B"]
+    assert samples.end_date[0] == pd.Timestamp("2024-01-03")
+
+
+def test_lstm_date_based_sequence_split_keeps_validation_later_than_train():
+    end_dates = [
+        pd.Timestamp("2024-01-01"),
+        pd.Timestamp("2024-01-01"),
+        pd.Timestamp("2024-01-02"),
+        pd.Timestamp("2024-01-02"),
+        pd.Timestamp("2024-01-03"),
+        pd.Timestamp("2024-01-03"),
+        pd.Timestamp("2024-01-04"),
+        pd.Timestamp("2024-01-04"),
+    ]
+
+    train_idx, valid_idx = _chronological_sequence_split_by_date(end_dates, 0.25)
+
+    train_dates = pd.Series(end_dates).iloc[train_idx]
+    valid_dates = pd.Series(end_dates).iloc[valid_idx]
+    assert train_dates.max() < valid_dates.min()
 
 
 def test_lstm_regressor_fits_scaler_on_train_rows_and_predicts_finite_values():
@@ -126,4 +151,44 @@ def test_lstm_regressor_trains_seed_ensemble_members():
     assert len(model.models_) == 2
     assert model.training_history_["ensemble_seeds"] == [1, 7]
     assert len(pred) == len(frame.iloc[34:])
+    assert np.isfinite(pred).all()
+
+
+def test_lstm_regressor_supports_per_ticker_target_normalization_and_balanced_sampling():
+    rows = []
+    for ticker, offset, scale in [("A", 0.0, 0.01), ("B", 10.0, 0.05)]:
+        dates = pd.date_range("2024-01-01", periods=36, freq="D")
+        for idx, date in enumerate(dates):
+            rows.append(
+                {
+                    "date": date,
+                    "ticker": ticker,
+                    "target_date": date + pd.Timedelta(days=5),
+                    "f1": offset + idx / 10.0,
+                    "f2": np.sin(idx / 3.0),
+                    "target": scale * np.cos(idx / 4.0),
+                }
+            )
+    frame = pd.DataFrame(rows)
+
+    model = LSTMReturnRegressor(
+        lookback=5,
+        hidden_size=8,
+        num_layers=1,
+        input_projection_size=0,
+        max_epochs=1,
+        patience=1,
+        batch_size=8,
+        random_state=11,
+        target_normalization="per_ticker",
+        balanced_ticker_sampling=True,
+        device="cpu",
+    )
+    model.fit(frame[["date", "ticker", "target_date", "f1", "f2"]], frame["target"])
+    pred = model.predict(frame.groupby("ticker", group_keys=False).tail(4)[["date", "ticker", "target_date", "f1", "f2"]])
+
+    assert {"__global__", "A", "B"}.issubset(model.target_stats_)
+    assert model.training_history_["balanced_ticker_sampling"] is True
+    after = model.training_history_["balanced_ticker_sampling_info"]["after"]
+    assert len(set(after.values())) == 1
     assert np.isfinite(pred).all()
