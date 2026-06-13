@@ -8,6 +8,7 @@ from stock_forecast.lstm_features import get_lstm_feature_columns, make_lstm_fea
 from stock_forecast.models.lstm import (
     LSTMReturnRegressor,
     _chronological_sequence_split_by_date,
+    _loss_function,
     build_lstm_sequence_samples,
 )
 
@@ -117,6 +118,45 @@ def test_lstm_regressor_fits_scaler_on_train_rows_and_predicts_finite_values():
     assert len(pred) == len(test)
     assert np.isfinite(pred).all()
     assert model.imputer_.statistics_[0] == pytest.approx(float(np.median(train["f1"])))
+
+
+def test_lstm_regressor_supports_native_huber_loss():
+    torch = pytest.importorskip("torch")
+    periods = 48
+    dates = pd.date_range("2024-01-01", periods=periods, freq="D")
+    frame = pd.DataFrame(
+        {
+            "date": dates,
+            "ticker": "A",
+            "target_date": dates + pd.Timedelta(days=5),
+            "f1": np.linspace(0.0, 1.0, periods),
+            "f2": np.sin(np.arange(periods) / 3.0),
+        }
+    )
+    target = 0.01 * np.cos(np.arange(periods) / 4.0)
+
+    criterion = _loss_function("huber", 0.08, torch.nn)
+    assert isinstance(criterion, torch.nn.HuberLoss)
+    assert criterion.delta == pytest.approx(0.08)
+
+    model = LSTMReturnRegressor(
+        lookback=5,
+        hidden_size=8,
+        num_layers=1,
+        input_projection_size=0,
+        loss="huber",
+        huber_beta=0.08,
+        max_epochs=2,
+        patience=1,
+        batch_size=8,
+        random_state=7,
+        device="cpu",
+    )
+    model.fit(frame.iloc[:36].copy(), target[:36])
+    pred = model.predict(frame.iloc[36:].copy())
+
+    assert len(pred) == len(frame.iloc[36:])
+    assert np.isfinite(pred).all()
 
 
 def test_lstm_regressor_trains_seed_ensemble_members():

@@ -400,8 +400,8 @@ class LSTMReturnRegressor(BaseEstimator, RegressorMixin):
             raise ValueError("num_layers must be positive")
         if int(self.batch_size) <= 0:
             raise ValueError("batch_size must be positive")
-        if str(self.loss) not in {"smooth_l1", "mse"}:
-            raise ValueError("loss must be one of: smooth_l1, mse")
+        if str(self.loss) not in {"smooth_l1", "huber", "mse"}:
+            raise ValueError("loss must be one of: smooth_l1, huber, mse")
         if float(self.huber_beta) <= 0:
             raise ValueError("huber_beta must be positive")
         if float(self.feature_clip) < 0:
@@ -606,6 +606,8 @@ def _build_network(
 def _loss_function(loss: str, huber_beta: float, nn: Any):
     if loss == "mse":
         return nn.MSELoss()
+    if loss == "huber":
+        return nn.HuberLoss(delta=huber_beta)
     return nn.SmoothL1Loss(beta=huber_beta)
 
 
