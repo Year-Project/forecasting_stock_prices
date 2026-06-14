@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import joblib
@@ -317,15 +318,16 @@ def test_strict_limited_history_config_overrides_search_space_and_trials():
 
 
 def test_model_comparison_notebook_uses_strict_artifacts_and_full_metric_comparison():
-    notebook = Path("forecasting/notebooks/03_model_comparison.ipynb").read_text()
+    notebook_json = json.loads(Path("forecasting/notebooks/03_model_comparison.ipynb").read_text())
+    notebook = "\n".join("".join(cell.get("source", [])) for cell in notebook_json["cells"])
 
     assert "strict_protocol" in notebook
-    assert 'PRIMARY_METRIC = \\"directional_accuracy\\"' in notebook
+    assert 'PRIMARY_METRIC = "directional_accuracy"' in notebook
     assert "test_predictions.parquet" in notebook
     assert "validation_signal_metrics.parquet" in notebook
     assert "TABLE_COMPARISON_SOURCE" in notebook
     assert "LSTM_ONLY_ARTIFACT_NAME" in notebook
-    assert 'LSTM_ONLY_ARTIFACT_NAME / \\"strict_protocol\\" / \\"reports\\"' in notebook
+    assert 'LSTM_ONLY_ARTIFACT_NAME / "strict_protocol" / "reports"' in notebook
     assert "Run notebooks/02b_lstm_forecasting.ipynb first" in notebook
     assert "global_lstm/strict_protocol/reports" in notebook
     assert "GLOBAL_LSTM_ARTIFACT_NAME" in notebook
@@ -335,8 +337,24 @@ def test_model_comparison_notebook_uses_strict_artifacts_and_full_metric_compari
     assert "comparison_test_panel_signal_metrics.parquet" in notebook
     assert "validation_model_metric_comparison.parquet" in notebook
     assert "Validation-vs-test model metric comparison" in notebook
+    assert "ensure_prediction_error_metrics" in notebook
+    assert '"mse": "min"' in notebook
+    assert '"smape": "min"' in notebook
+    assert '"validation_mse"' in notebook
+    assert '"validation_smape"' in notebook
+    assert '"test_mse"' in notebook
+    assert '"test_smape"' in notebook
+    assert "build_all_horizon_test_metrics_table" in notebook
+    assert "all_horizon_test_metrics.parquet" in notebook
+    assert 'for metric_col in ["mae", "mse", "rmse", "smape"]' in notebook
+    assert '"test_n_obs"' in notebook
+    assert '"mae"' in notebook
+    assert '"smape"' in notebook
+    assert "All horizon, stock, and model metrics on test data sample" in notebook
+    assert '"display.max_rows", None' in notebook
+    assert '"display.max_columns", None' in notebook
     assert "## Test Predicted Vs Actual And Distributions For Each Ticker" in notebook
-    assert 'test_predictions = result[\\"test_predictions\\"]' in notebook
+    assert 'test_predictions = result["test_predictions"]' in notebook
     assert "_test_predicted_vs_actual_by_date.png" in notebook
     assert "_test_predicted_vs_actual_scatter.png" in notebook
     assert "_test_prediction_distribution.png" in notebook
