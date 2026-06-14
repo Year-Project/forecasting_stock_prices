@@ -172,6 +172,7 @@ def run_strict_per_ticker_protocol(
     slippage_bps: float = 5.0,
     long_threshold: float = 0.0,
     signal_anchor: str = "expanding_median",
+    mlflow_trial_logger: Any | None = None,
 ) -> dict[str, Any]:
     """Run strict per-ticker model tuning, validation ranking, final refit, and test evaluation."""
     artifact_root = Path(artifact_dir) / STRICT_PROTOCOL_DIR
@@ -258,6 +259,7 @@ def run_strict_per_ticker_protocol(
                 inner_max_folds=inner_max_folds,
                 inner_min_train_rows=min(inner_min_train_rows, max(10, len(train) // 2)),
                 inner_validation_window=inner_validation_window or _default_inner_validation_window(horizon),
+                mlflow_trial_logger=mlflow_trial_logger,
             )
             selected_params = _post_selection_params(tuned_config, params)
             best_param_rows.append(
@@ -454,6 +456,7 @@ def run_strict_global_lstm_protocol(
     signal_anchor: str = "expanding_median",
     min_validation_trades: int = 8,
     max_validation_drawdown: float = -0.35,
+    mlflow_trial_logger: Any | None = None,
 ) -> dict[str, Any]:
     """Train one purged global LSTM per config and evaluate it across all tickers."""
     artifact_root = Path(artifact_dir) / STRICT_PROTOCOL_DIR
@@ -542,6 +545,7 @@ def run_strict_global_lstm_protocol(
             min_validation_trades=min_validation_trades,
             max_validation_drawdown=max_validation_drawdown,
             horizon=horizon,
+            mlflow_trial_logger=mlflow_trial_logger,
         )
         selected_params = _post_selection_params(config, params)
         if not tuning_metrics.empty:
@@ -958,6 +962,7 @@ def _get_or_search_global_inner_cv_params(
     min_validation_trades: int,
     max_validation_drawdown: float,
     horizon: int,
+    mlflow_trial_logger: Any | None = None,
 ) -> tuple[dict[str, Any], pd.DataFrame]:
     cache_path = cache_dir / "global.json"
     cache_metadata = {
@@ -1059,6 +1064,40 @@ def _get_or_search_global_inner_cv_params(
         for key in ["profit_risk_utility", "panel_sharpe", "mean_ticker_sharpe", "max_drawdown", "number_of_trades"]:
             if key in fold_metrics.columns:
                 trial.set_user_attr(key, float(fold_metrics[key].mean()))
+        if mlflow_trial_logger is not None:
+            mean_metrics = {
+                key: float(fold_metrics[key].mean())
+                for key in [
+                    "mae",
+                    "rmse",
+                    "r2",
+                    "pearson",
+                    "spearman",
+                    "directional_accuracy",
+                    "profit_risk_utility",
+                    "panel_sharpe",
+                    "mean_ticker_sharpe",
+                    "cumulative_return",
+                    "max_drawdown",
+                    "turnover",
+                    "number_of_trades",
+                ]
+                if key in fold_metrics.columns
+            }
+            mlflow_trial_logger.log_trial(
+                trial_number=int(trial.number),
+                model_name=str(model_config["name"]),
+                params=params,
+                metrics={"objective_score": score, **mean_metrics},
+                tags={
+                    **run_metadata,
+                    "ticker": "__global__",
+                    "model_name": str(model_config["name"]),
+                    "objective_metric": "profit_risk_utility",
+                    "tuning_backend": tuning_backend,
+                    "training_scope": run_metadata.get("training_scope", "global_lstm_strict"),
+                },
+            )
         return score if np.isfinite(score) else float("-inf")
 
     study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=random_state))
@@ -1377,6 +1416,7 @@ def _get_or_search_inner_cv_params(
     inner_max_folds: int,
     inner_min_train_rows: int,
     inner_validation_window: int,
+    mlflow_trial_logger: Any | None = None,
 ) -> tuple[dict[str, Any], pd.DataFrame]:
     cache_path = cache_dir / f"{_safe_filename(ticker)}.json"
     cache_metadata = {
@@ -1449,6 +1489,25 @@ def _get_or_search_inner_cv_params(
         for key in ["mae", "rmse", "r2", "pearson", "spearman", "directional_accuracy"]:
             if key in fold_metrics.columns:
                 trial.set_user_attr(key, float(fold_metrics[key].mean()))
+        if mlflow_trial_logger is not None:
+            mean_metrics = {
+                key: float(fold_metrics[key].mean())
+                for key in ["mae", "rmse", "r2", "pearson", "spearman", "directional_accuracy"]
+                if key in fold_metrics.columns
+            }
+            mlflow_trial_logger.log_trial(
+                trial_number=int(trial.number),
+                model_name=str(model_config["name"]),
+                params=params,
+                metrics={"objective_score": score, **mean_metrics},
+                tags={
+                    **run_metadata,
+                    "ticker": ticker,
+                    "model_name": str(model_config["name"]),
+                    "objective_metric": metric,
+                    "tuning_backend": tuning_backend,
+                },
+            )
         if np.isfinite(score):
             return score
         return float("inf") if direction == "minimize" else float("-inf")

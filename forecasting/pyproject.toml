@@ -9,6 +9,7 @@ description = "Leakage-safe stock return forecasting and backtesting pipeline."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+  "apimoex~=1.4.0",
   "joblib",
   "matplotlib",
   "mlflow==3.13.0",
@@ -16,7 +17,9 @@ dependencies = [
   "optuna",
   "pandas",
   "pyarrow",
+  "python-dotenv~=1.2.1",
   "pyyaml",
+  "requests~=2.32.3",
   "scikit-learn",
 ]
 

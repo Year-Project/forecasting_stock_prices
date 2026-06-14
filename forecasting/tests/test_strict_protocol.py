@@ -323,8 +323,13 @@ def test_model_comparison_notebook_uses_strict_artifacts_and_full_metric_compari
     assert 'PRIMARY_METRIC = \\"directional_accuracy\\"' in notebook
     assert "test_predictions.parquet" in notebook
     assert "validation_signal_metrics.parquet" in notebook
+    assert "TABLE_COMPARISON_SOURCE" in notebook
+    assert "LSTM_ONLY_ARTIFACT_NAME" in notebook
+    assert 'LSTM_ONLY_ARTIFACT_NAME / \\"strict_protocol\\" / \\"reports\\"' in notebook
+    assert "Run notebooks/02b_lstm_forecasting.ipynb first" in notebook
     assert "global_lstm/strict_protocol/reports" in notebook
     assert "GLOBAL_LSTM_ARTIFACT_NAME" in notebook
+    assert "comparison_source" in notebook
     assert "test_panel_signal_metrics.parquet" in notebook
     assert "comparison_test_signal_metrics.parquet" in notebook
     assert "comparison_test_panel_signal_metrics.parquet" in notebook
@@ -349,6 +354,12 @@ def test_table_model_forecasting_notebook_uses_directional_accuracy_selection():
     assert 'PRIMARY_METRIC = \\"directional_accuracy\\"' in notebook
     assert 'primary_metric=PRIMARY_METRIC' in notebook
     assert 'PRIMARY_METRIC = \\"rmse\\"' not in notebook
+    assert '\\"model_type\\": \\"lstm\\"' not in notebook
+    assert '\\"input_mode\\": \\"full_frame\\"' not in notebook
+    assert "LSTM_N_TRIALS" not in notebook
+    assert "make_lstm_config" not in notebook
+    assert "01b_lstm_eda.ipynb" not in notebook
+    assert "lstm_only" not in notebook
 
 
 def test_lstm_notebook_and_report_sources_are_registered():
@@ -362,17 +373,21 @@ def test_lstm_notebook_and_report_sources_are_registered():
     assert "make_lstm_features" in lstm_eda
     assert "LSTM_DATA_DIR" in lstm_eda
     assert "sequence_diagnostics.json" in lstm_eda
-    assert '\\"model_type\\": \\"lstm\\"' in training
-    assert '\\"input_mode\\": \\"full_frame\\"' in training
-    assert "LSTM_N_TRIALS" in training
-    assert "01b_lstm_eda.ipynb" in training
+    assert '\\"model_type\\": \\"lstm\\"' not in training
+    assert '\\"input_mode\\": \\"full_frame\\"' not in training
+    assert "LSTM_N_TRIALS" not in training
+    assert "01b_lstm_eda.ipynb" not in training
     assert "02b_lstm_forecasting" in lstm_only_training
-    assert "MERGE_LSTM_INTO_MAIN_STRICT_REPORTS" in lstm_only_training
+    assert '\\"model_type\\": \\"lstm\\"' in lstm_only_training
+    assert '\\"input_mode\\": \\"full_frame\\"' in lstm_only_training
+    assert "LSTM_N_TRIALS" in lstm_only_training
+    assert "01b_lstm_eda.ipynb" in lstm_only_training
+    assert "MERGE_LSTM_INTO_MAIN_STRICT_REPORTS" not in lstm_only_training
     assert "LSTM_ONLY_ARTIFACT_NAME" in lstm_only_training
     assert "lstm_only" in lstm_only_training
-    assert "merge_lstm_into_main" in lstm_only_training
-    assert "_strict_metrics" in lstm_only_training
-    assert "_validation_ranking" in lstm_only_training
+    assert "merge_lstm_into_main" not in lstm_only_training
+    assert "_strict_metrics" not in lstm_only_training
+    assert "_validation_ranking" not in lstm_only_training
     assert "FORCE_RETRAIN" in lstm_only_training
     assert "GLOBAL_LSTM_DATA_DIR" in global_lstm_eda
     assert "ticker_onehot_columns" in global_lstm_eda
@@ -384,5 +399,8 @@ def test_lstm_notebook_and_report_sources_are_registered():
     assert "02c_global_lstm_forecasting" in global_lstm_training
     assert "lstm_hyperparameter_summary" in comparison
     assert "LSTM Hyperparameter Summary" in comparison
+    assert "TABLE_COMPARISON_SOURCE" in comparison
+    assert "LSTM_ONLY_ARTIFACT_NAME" in comparison
+    assert "lstm_only" in comparison
     assert "global_lstm" in comparison
     assert "test_panel_signal_metrics" in comparison

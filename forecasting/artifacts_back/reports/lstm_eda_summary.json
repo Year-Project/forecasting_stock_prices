@@ -1,0 +1,72 @@
+{
+  "source_eda_summary": {
+    "clean_ohlcv": "artifacts/data/clean_ohlcv.parquet",
+    "model_dataset": "artifacts/data/model_dataset.parquet",
+    "feature_columns": "artifacts/data/feature_columns.json",
+    "horizons": [
+      {
+        "horizon_name": "week",
+        "horizon": 5,
+        "rows_model_dataset": 17880,
+        "target_column": "target_return_5_next_open",
+        "model_dataset": "artifacts/data/horizons/week/model_dataset.parquet",
+        "feature_columns": "artifacts/data/horizons/week/feature_columns.json"
+      },
+      {
+        "horizon_name": "month",
+        "horizon": 21,
+        "rows_model_dataset": 17768,
+        "target_column": "target_return_21_next_open",
+        "model_dataset": "artifacts/data/horizons/month/model_dataset.parquet",
+        "feature_columns": "artifacts/data/horizons/month/feature_columns.json"
+      }
+    ]
+  },
+  "rows_clean": 18899,
+  "horizons": [
+    {
+      "name": "week",
+      "horizon": 5
+    },
+    {
+      "name": "month",
+      "horizon": 21
+    }
+  ],
+  "recommended_lookbacks": [
+    20,
+    40,
+    60,
+    90,
+    126
+  ],
+  "limited_history_lookbacks": [
+    20,
+    40,
+    60
+  ],
+  "artifacts": [
+    {
+      "horizon_name": "week",
+      "horizon": 5,
+      "rows_model_dataset": 17880,
+      "feature_count": 160,
+      "added_lstm_feature_count": 33,
+      "target_column": "target_return_5_next_open",
+      "model_dataset": "artifacts/data/lstm/horizons/week/model_dataset.parquet",
+      "feature_columns": "artifacts/data/lstm/horizons/week/feature_columns.json",
+      "sequence_diagnostics": "artifacts/data/lstm/horizons/week/sequence_diagnostics.json"
+    },
+    {
+      "horizon_name": "month",
+      "horizon": 21,
+      "rows_model_dataset": 17768,
+      "feature_count": 160,
+      "added_lstm_feature_count": 33,
+      "target_column": "target_return_21_next_open",
+      "model_dataset": "artifacts/data/lstm/horizons/month/model_dataset.parquet",
+      "feature_columns": "artifacts/data/lstm/horizons/month/feature_columns.json",
+      "sequence_diagnostics": "artifacts/data/lstm/horizons/month/sequence_diagnostics.json"
+    }
+  ]
+}

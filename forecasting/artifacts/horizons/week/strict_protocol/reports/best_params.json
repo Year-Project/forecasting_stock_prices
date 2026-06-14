@@ -14,384 +14,21 @@
     "ticker": "CBOM",
     "model_name": "momentum",
     "best_params": {
-      "column": "rolling_ret_mean_60"
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "CBOM",
-    "model_name": "ridge",
-    "best_params": {
-      "alpha": 10.887914918328164,
-      "solver": "svd",
-      "fit_intercept": false,
-      "tol": 4.588150053863583e-06
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "CBOM",
-    "model_name": "hist_gradient_boosting",
-    "best_params": {
-      "max_iter": 51,
-      "learning_rate": 0.02511329850741316,
-      "l2_regularization": 0.00022341987757813636,
-      "max_leaf_nodes": 25,
-      "max_depth": null,
-      "min_samples_leaf": 28,
-      "max_bins": 140
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "CBOM",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 260,
-      "learning_rate": 0.00485089277913082,
-      "num_leaves": 17,
-      "max_depth": -1,
-      "min_child_samples": 31,
-      "subsample": 0.8167441154028889,
-      "subsample_freq": 3,
-      "colsample_bytree": 0.9917805430151294,
-      "reg_alpha": 0.011111687190965369,
-      "reg_lambda": 0.02430885872087688,
-      "min_split_gain": 0.006975821409339944
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "CBOM",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 81,
-      "learning_rate": 0.03218015723053878,
-      "max_depth": 4,
-      "min_child_weight": 0.4510826832158369,
-      "subsample": 0.9873313784040283,
-      "colsample_bytree": 0.7368178815740362,
-      "reg_alpha": 0.020806560658934815,
-      "reg_lambda": 0.7408055250986166,
-      "gamma": 3.589832186603066
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "CBOM",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 387,
-      "learning_rate": 0.0012169619292076899,
-      "depth": 8,
-      "l2_leaf_reg": 0.014045685194392928,
-      "random_strength": 0.013615572726759173,
-      "bagging_temperature": 9.917693974070946,
-      "border_count": 249,
-      "min_data_in_leaf": 20
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "MBNK",
-    "model_name": "naive_persistence",
-    "best_params": {},
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "MBNK",
-    "model_name": "momentum",
-    "best_params": {
       "column": "rolling_ret_mean_20"
     },
-    "split_quality": "limited_history",
-    "limited_history": true
+    "split_quality": "mature",
+    "limited_history": false
   },
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "MBNK",
+    "ticker": "CBOM",
     "model_name": "ridge",
     "best_params": {
-      "alpha": 0.01836476966563076,
+      "alpha": 0.6755714719686976,
       "solver": "auto",
-      "fit_intercept": false,
-      "tol": 3.555563513360355e-05
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "MBNK",
-    "model_name": "hist_gradient_boosting",
-    "best_params": {
-      "max_iter": 251,
-      "learning_rate": 0.003258051957915264,
-      "l2_regularization": 0.7162337082407082,
-      "max_leaf_nodes": 19,
-      "max_depth": 4,
-      "min_samples_leaf": 33,
-      "max_bins": 120
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "MBNK",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 80,
-      "learning_rate": 0.001426922552354537,
-      "num_leaves": 26,
-      "max_depth": 4,
-      "min_child_samples": 37,
-      "subsample": 0.6080327683174098,
-      "subsample_freq": 5,
-      "colsample_bytree": 0.7503875607295825,
-      "reg_alpha": 0.0002831521571127682,
-      "reg_lambda": 11.05304369085993,
-      "min_split_gain": 0.05271616676058399
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "MBNK",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 181,
-      "learning_rate": 0.0647347751364124,
-      "max_depth": 2,
-      "min_child_weight": 0.45868509306790234,
-      "subsample": 0.6966188529636156,
-      "colsample_bytree": 0.6615181319990323,
-      "reg_alpha": 2.254925222034361e-06,
-      "reg_lambda": 0.0011273221446849928,
-      "gamma": 1.8791793380197857
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "MBNK",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 339,
-      "learning_rate": 0.00399424323972653,
-      "depth": 7,
-      "l2_leaf_reg": 0.7661070613761943,
-      "random_strength": 5.66898225160013,
-      "bagging_temperature": 1.8426292071489747,
-      "border_count": 241,
-      "min_data_in_leaf": 41
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "naive_persistence",
-    "best_params": {},
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "momentum",
-    "best_params": {
-      "column": "rolling_ret_mean_60"
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "ridge",
-    "best_params": {
-      "alpha": 2471.2665804686117,
-      "solver": "lsqr",
-      "fit_intercept": false,
-      "tol": 0.0013064377815984298
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "hist_gradient_boosting",
-    "best_params": {
-      "max_iter": 256,
-      "learning_rate": 0.027718523375579257,
-      "l2_regularization": 0.007019246264888716,
-      "max_leaf_nodes": 13,
-      "max_depth": 2,
-      "min_samples_leaf": 87,
-      "max_bins": 247
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 216,
-      "learning_rate": 0.009718521957319424,
-      "num_leaves": 17,
-      "max_depth": 6,
-      "min_child_samples": 31,
-      "subsample": 0.5972175562505799,
-      "subsample_freq": 6,
-      "colsample_bytree": 0.6920560846055178,
-      "reg_alpha": 2.698187035401783e-06,
-      "reg_lambda": 0.004596878655281767,
-      "min_split_gain": 0.04343899047468791
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 182,
-      "learning_rate": 0.0068851170892334015,
-      "max_depth": 8,
-      "min_child_weight": 2.057243372787616,
-      "subsample": 0.787523479505185,
-      "colsample_bytree": 0.6043894166905686,
-      "reg_alpha": 0.08449785657935421,
-      "reg_lambda": 94.1359338852915,
-      "gamma": 1.4508001749056114
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBER",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 172,
-      "learning_rate": 0.024437697225642305,
-      "depth": 2,
-      "l2_leaf_reg": 0.06975723906861858,
-      "random_strength": 5.989686343578594,
-      "bagging_temperature": 7.131281483267062,
-      "border_count": 74,
-      "min_data_in_leaf": 15
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBERP",
-    "model_name": "naive_persistence",
-    "best_params": {},
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBERP",
-    "model_name": "momentum",
-    "best_params": {
-      "column": "rolling_ret_mean_60"
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBERP",
-    "model_name": "ridge",
-    "best_params": {
-      "alpha": 49.916533510286506,
-      "solver": "lsqr",
       "fit_intercept": true,
-      "tol": 0.0019100142686176884
+      "tol": 0.0006896574522046085
     },
     "split_quality": "mature",
     "limited_history": false
@@ -399,41 +36,16 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "SBERP",
+    "ticker": "CBOM",
     "model_name": "hist_gradient_boosting",
     "best_params": {
-      "max_iter": 258,
-      "learning_rate": 0.026228713525973835,
-      "l2_regularization": 0.11706711081849783,
-      "max_leaf_nodes": 5,
-      "max_depth": 4,
-      "min_samples_leaf": 59,
-      "max_bins": 66
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBERP",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 102,
-      "learning_rate": 0.057387258996844735,
-      "num_leaves": 61,
+      "max_iter": 250,
+      "learning_rate": 0.00607601679218429,
+      "l2_regularization": 0.49102588887815113,
+      "max_leaf_nodes": 22,
       "max_depth": 6,
-      "min_child_samples": 16,
-      "subsample": 0.7755056085739822,
-      "subsample_freq": 3,
-      "colsample_bytree": 0.9608267016016288,
-      "reg_alpha": 8.259756741774814e-08,
-      "reg_lambda": 0.01459316913858591,
-      "min_split_gain": 0.2637016200248904
+      "min_samples_leaf": 84,
+      "max_bins": 196
     },
     "split_quality": "mature",
     "limited_history": false
@@ -441,52 +53,7 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "SBERP",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 83,
-      "learning_rate": 0.002195746643843578,
-      "max_depth": 4,
-      "min_child_weight": 0.21215192886938106,
-      "subsample": 0.9475313071043744,
-      "colsample_bytree": 0.7074871920904804,
-      "reg_alpha": 0.00016964055931903622,
-      "reg_lambda": 16.21635851148697,
-      "gamma": 0.050075500250638144
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SBERP",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 91,
-      "learning_rate": 0.09626888180016144,
-      "depth": 6,
-      "l2_leaf_reg": 0.31376457327905843,
-      "random_strength": 8.276809846996073,
-      "bagging_temperature": 7.380932252545024,
-      "border_count": 69,
-      "min_data_in_leaf": 19
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SVCB",
+    "ticker": "MBNK",
     "model_name": "naive_persistence",
     "best_params": {},
     "split_quality": "limited_history",
@@ -495,7 +62,7 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "SVCB",
+    "ticker": "MBNK",
     "model_name": "momentum",
     "best_params": {
       "column": "rolling_ret_mean_5"
@@ -506,13 +73,13 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "SVCB",
+    "ticker": "MBNK",
     "model_name": "ridge",
     "best_params": {
-      "alpha": 0.03162799327921988,
+      "alpha": 0.0017358232510678844,
       "solver": "cholesky",
       "fit_intercept": false,
-      "tol": 5.40625101013723e-06
+      "tol": 0.0005196391761190653
     },
     "split_quality": "limited_history",
     "limited_history": true
@@ -520,16 +87,16 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "SVCB",
+    "ticker": "MBNK",
     "model_name": "hist_gradient_boosting",
     "best_params": {
-      "max_iter": 226,
-      "learning_rate": 0.03755994983552035,
-      "l2_regularization": 4.502029838312711,
-      "max_leaf_nodes": 25,
-      "max_depth": 2,
-      "min_samples_leaf": 92,
-      "max_bins": 193
+      "max_iter": 75,
+      "learning_rate": 0.0024612899245908997,
+      "l2_regularization": 0.10648570038398379,
+      "max_leaf_nodes": 7,
+      "max_depth": 8,
+      "min_samples_leaf": 90,
+      "max_bins": 210
     },
     "split_quality": "limited_history",
     "limited_history": true
@@ -537,77 +104,7 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "SVCB",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 218,
-      "learning_rate": 0.006196393123426861,
-      "num_leaves": 26,
-      "max_depth": 3,
-      "min_child_samples": 97,
-      "subsample": 0.8492340722973897,
-      "subsample_freq": 3,
-      "colsample_bytree": 0.5982534846511584,
-      "reg_alpha": 2.0862873800832156,
-      "reg_lambda": 8.909139324985114,
-      "min_split_gain": 0.17279218494566262
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SVCB",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 273,
-      "learning_rate": 0.02925704659928349,
-      "max_depth": 3,
-      "min_child_weight": 2.0149995777300003,
-      "subsample": 0.5294604232018469,
-      "colsample_bytree": 0.7935999395810465,
-      "reg_alpha": 2.1039794623632897,
-      "reg_lambda": 7.218903459555039,
-      "gamma": 4.601204030012872
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "SVCB",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 276,
-      "learning_rate": 0.03895894873757826,
-      "depth": 8,
-      "l2_leaf_reg": 0.01182663218212409,
-      "random_strength": 3.2421909375400473,
-      "bagging_temperature": 6.438727683031078,
-      "border_count": 168,
-      "min_data_in_leaf": 33
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "T",
+    "ticker": "SBER",
     "model_name": "naive_persistence",
     "best_params": {},
     "split_quality": "mature",
@@ -616,7 +113,58 @@
   {
     "horizon_name": "week",
     "horizon": 5,
-    "ticker": "T",
+    "ticker": "SBER",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "ret_lag_1"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SBER",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 10103.754978493149,
+      "solver": "auto",
+      "fit_intercept": true,
+      "tol": 0.0027073117040154995
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SBER",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 386,
+      "learning_rate": 0.019542270700822314,
+      "l2_regularization": 0.0024494802532317355,
+      "max_leaf_nodes": 31,
+      "max_depth": 4,
+      "min_samples_leaf": 37,
+      "max_bins": 202
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SBERP",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SBERP",
     "model_name": "momentum",
     "best_params": {
       "column": "ret_lag_10"
@@ -627,13 +175,115 @@
   {
     "horizon_name": "week",
     "horizon": 5,
+    "ticker": "SBERP",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 38602.85998136502,
+      "solver": "svd",
+      "fit_intercept": true,
+      "tol": 2.977922660423867e-05
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SBERP",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 387,
+      "learning_rate": 0.011959780088424717,
+      "l2_regularization": 2.7423465349278437,
+      "max_leaf_nodes": 30,
+      "max_depth": 4,
+      "min_samples_leaf": 58,
+      "max_bins": 62
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SVCB",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SVCB",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "ret_lag_2"
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SVCB",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 75408.96462107278,
+      "solver": "auto",
+      "fit_intercept": true,
+      "tol": 1.1245347208524209e-06
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "SVCB",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 183,
+      "learning_rate": 0.018673929154519972,
+      "l2_regularization": 0.033527996438246194,
+      "max_leaf_nodes": 14,
+      "max_depth": 6,
+      "min_samples_leaf": 34,
+      "max_bins": 150
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "T",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "ticker": "T",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_60"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
     "ticker": "T",
     "model_name": "ridge",
     "best_params": {
-      "alpha": 4.787709577235323,
-      "solver": "lsqr",
+      "alpha": 33691.26202073319,
+      "solver": "svd",
       "fit_intercept": true,
-      "tol": 0.0007697806976838846
+      "tol": 0.00014254613942084066
     },
     "split_quality": "mature",
     "limited_history": false
@@ -644,83 +294,13 @@
     "ticker": "T",
     "model_name": "hist_gradient_boosting",
     "best_params": {
-      "max_iter": 372,
-      "learning_rate": 0.09944733921007493,
-      "l2_regularization": 0.003906799282748511,
-      "max_leaf_nodes": 4,
-      "max_depth": 6,
-      "min_samples_leaf": 67,
-      "max_bins": 255
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "T",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 272,
-      "learning_rate": 0.044423752145658066,
-      "num_leaves": 10,
-      "max_depth": 4,
-      "min_child_samples": 43,
-      "subsample": 0.7116344055574294,
-      "subsample_freq": 8,
-      "colsample_bytree": 0.6966494374699894,
-      "reg_alpha": 8.759331773364606e-05,
-      "reg_lambda": 53.964444247060875,
-      "min_split_gain": 0.011114358743621433
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "T",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 172,
-      "learning_rate": 0.015855104557054567,
-      "max_depth": 3,
-      "min_child_weight": 8.557740011421306,
-      "subsample": 0.82944386999081,
-      "colsample_bytree": 0.542291552440368,
-      "reg_alpha": 3.438931364530891e-08,
-      "reg_lambda": 1.7080176045352709,
-      "gamma": 2.0506894034650265
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "T",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 183,
-      "learning_rate": 0.023248037065473143,
-      "depth": 8,
-      "l2_leaf_reg": 0.010354356633603363,
-      "random_strength": 1.7097252561789533,
-      "bagging_temperature": 5.547001282253597,
-      "border_count": 160,
-      "min_data_in_leaf": 29
+      "max_iter": 126,
+      "learning_rate": 0.01621820699332273,
+      "l2_regularization": 0.10201168425984457,
+      "max_leaf_nodes": 9,
+      "max_depth": 2,
+      "min_samples_leaf": 33,
+      "max_bins": 56
     },
     "split_quality": "mature",
     "limited_history": false
@@ -740,7 +320,7 @@
     "ticker": "VTBR",
     "model_name": "momentum",
     "best_params": {
-      "column": "rolling_ret_mean_60"
+      "column": "rolling_ret_mean_5"
     },
     "split_quality": "mature",
     "limited_history": false
@@ -751,10 +331,10 @@
     "ticker": "VTBR",
     "model_name": "ridge",
     "best_params": {
-      "alpha": 78183.72843624055,
+      "alpha": 45.24247373016182,
       "solver": "svd",
-      "fit_intercept": true,
-      "tol": 4.303790491366077e-05
+      "fit_intercept": false,
+      "tol": 6.124937643204066e-05
     },
     "split_quality": "mature",
     "limited_history": false
@@ -765,328 +345,13 @@
     "ticker": "VTBR",
     "model_name": "hist_gradient_boosting",
     "best_params": {
-      "max_iter": 104,
-      "learning_rate": 0.0018677516576487288,
-      "l2_regularization": 0.019266710615997305,
-      "max_leaf_nodes": 6,
-      "max_depth": 2,
-      "min_samples_leaf": 58,
-      "max_bins": 198
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "VTBR",
-    "model_name": "lightgbm",
-    "best_params": {
-      "objective": "regression",
-      "verbosity": -1,
-      "force_col_wise": true,
-      "n_jobs": 1,
-      "n_estimators": 318,
-      "learning_rate": 0.0026675444645197425,
-      "num_leaves": 5,
-      "max_depth": 8,
-      "min_child_samples": 99,
-      "subsample": 0.8401700917626365,
-      "subsample_freq": 1,
-      "colsample_bytree": 0.9402538784854213,
-      "reg_alpha": 3.0155185373499533e-06,
-      "reg_lambda": 0.4851362271641348,
-      "min_split_gain": 0.3235433954121515
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "VTBR",
-    "model_name": "xgboost",
-    "best_params": {
-      "objective": "reg:squarederror",
-      "verbosity": 0,
-      "n_jobs": 1,
-      "n_estimators": 84,
-      "learning_rate": 0.0013605073048030519,
-      "max_depth": 7,
-      "min_child_weight": 0.5524338506520693,
-      "subsample": 0.8021409272600108,
-      "colsample_bytree": 0.960838606413341,
-      "reg_alpha": 4.2381151613193216e-08,
-      "reg_lambda": 0.20893140446290798,
-      "gamma": 0.7921134311574912
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "ticker": "VTBR",
-    "model_name": "catboost",
-    "best_params": {
-      "loss_function": "RMSE",
-      "verbose": false,
-      "allow_writing_files": false,
-      "thread_count": 1,
-      "grow_policy": "Depthwise",
-      "iterations": 32,
-      "learning_rate": 0.00277911289393239,
-      "depth": 2,
-      "l2_leaf_reg": 0.7422812425133405,
-      "random_strength": 7.38251107988693,
-      "bagging_temperature": 3.8185855109095246,
-      "border_count": 33,
-      "min_data_in_leaf": 17
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "CBOM",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 40,
-      "hidden_size": 96,
-      "num_layers": 2,
-      "input_projection_size": 128,
-      "lstm_dropout": 0.20625013046026092,
-      "head_dropout": 0.48183608920920673,
-      "learning_rate": 0.0006084525113624929,
-      "weight_decay": 0.0030253711554322237,
-      "batch_size": 128,
-      "loss": "mse",
-      "huber_beta": 0.06,
-      "feature_clip": 5.0,
-      "grad_clip_norm": 1.6321282072689627,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "MBNK",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 40,
-      "hidden_size": 128,
-      "num_layers": 1,
-      "input_projection_size": 128,
-      "lstm_dropout": 0.0017715543461765402,
-      "head_dropout": 0.21432322056699946,
-      "learning_rate": 0.0005175104449339833,
-      "weight_decay": 0.0011903799220250159,
-      "batch_size": 64,
-      "loss": "mse",
-      "huber_beta": 0.06,
-      "feature_clip": 3.0,
-      "grad_clip_norm": 1.0515737045891502,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "SBER",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 60,
-      "hidden_size": 16,
-      "num_layers": 2,
-      "input_projection_size": 64,
-      "lstm_dropout": 0.29311842894346307,
-      "head_dropout": 0.37679271867148656,
-      "learning_rate": 0.000169945049085223,
-      "weight_decay": 2.762471346959525e-05,
-      "batch_size": 32,
-      "loss": "smooth_l1",
-      "huber_beta": 0.04,
-      "feature_clip": 5.0,
-      "grad_clip_norm": 1.3812888275048134,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "SBERP",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 90,
-      "hidden_size": 64,
-      "num_layers": 1,
-      "input_projection_size": 32,
-      "lstm_dropout": 0.23668147297942838,
-      "head_dropout": 0.28868210810852213,
-      "learning_rate": 0.0008067100479400162,
-      "weight_decay": 0.0030646394049037066,
-      "batch_size": 32,
-      "loss": "mse",
-      "huber_beta": 0.02,
-      "feature_clip": 3.0,
-      "grad_clip_norm": 1.7092635940671388,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "SVCB",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 40,
-      "hidden_size": 96,
-      "num_layers": 1,
-      "input_projection_size": 128,
-      "lstm_dropout": 0.026092725287919786,
-      "head_dropout": 0.5447547746402069,
-      "learning_rate": 0.001010912598210831,
-      "weight_decay": 3.9459088110999965e-05,
-      "batch_size": 32,
-      "loss": "mse",
-      "huber_beta": 0.04,
-      "feature_clip": 3.0,
-      "grad_clip_norm": 0.5953375254290354,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
-    },
-    "split_quality": "limited_history",
-    "limited_history": true
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "T",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 90,
-      "hidden_size": 32,
-      "num_layers": 2,
-      "input_projection_size": 0,
-      "lstm_dropout": 0.16603162409109132,
-      "head_dropout": 0.2741094091956645,
-      "learning_rate": 0.0014481689064894938,
-      "weight_decay": 9.199847770980717e-05,
-      "batch_size": 32,
-      "loss": "mse",
-      "huber_beta": 0.06,
-      "feature_clip": 8.0,
-      "grad_clip_norm": 0.9492251063706584,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
-    },
-    "split_quality": "mature",
-    "limited_history": false
-  },
-  {
-    "horizon_name": "week",
-    "horizon": 5,
-    "training_notebook": "02b_lstm_forecasting",
-    "lstm_only_run": true,
-    "ticker": "VTBR",
-    "model_name": "lstm",
-    "best_params": {
-      "max_epochs": 150,
-      "patience": 15,
-      "device": "auto",
-      "lookback": 60,
-      "hidden_size": 128,
-      "num_layers": 2,
-      "input_projection_size": 64,
-      "lstm_dropout": 0.3391137268239266,
-      "head_dropout": 0.19040512734425638,
-      "learning_rate": 0.0007291926076740915,
-      "weight_decay": 9.615936436771083e-05,
-      "batch_size": 64,
-      "loss": "smooth_l1",
-      "huber_beta": 0.06,
-      "feature_clip": 5.0,
-      "grad_clip_norm": 1.6429882546625882,
-      "ensemble_seeds": [
-        1,
-        7,
-        21,
-        42,
-        101
-      ]
+      "max_iter": 202,
+      "learning_rate": 0.02341398096479763,
+      "l2_regularization": 0.0009547043453420066,
+      "max_leaf_nodes": 15,
+      "max_depth": null,
+      "min_samples_leaf": 42,
+      "max_bins": 124
     },
     "split_quality": "mature",
     "limited_history": false
