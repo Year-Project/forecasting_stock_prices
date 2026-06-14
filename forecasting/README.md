@@ -20,7 +20,11 @@ Run notebooks in order:
    Builds pooled/global LSTM artifacts with ticker one-hot features, stationary feature-set candidates, and all-series sequence diagnostics.
 6. `notebooks/02c_global_lstm_forecasting.ipynb`
    Trains one global LSTM per horizon across all available ticker series with calendar-global purging, validation profit/risk threshold selection, and panel signal metrics.
-7. `notebooks/03_model_comparison.ipynb`
+7. `notebooks/01d_mamba_eda.ipynb`
+   Builds pooled/global Mamba artifacts with additional regime, gap/intraday, volatility-shape, and volume-imbalance sequence features.
+8. `notebooks/02d_mamba_forecasting.ipynb`
+   Trains official `mamba-ssm` global Mamba models per horizon with the same strict global protocol used by global LSTM.
+9. `notebooks/03_model_comparison.ipynb`
    Loads trained horizon artifacts, compares models per stock, runs independent per-stock signal backtests and saves final comparison reports and plots for each horizon.
 
 ## Data
@@ -56,10 +60,13 @@ The notebook chain writes:
 - `artifacts/data/lstm/horizons/{week,month}/sequence_diagnostics.json`
 - `artifacts/data/global_lstm/horizons/{week,month}/model_dataset.parquet`
 - `artifacts/data/global_lstm/horizons/{week,month}/global_sequence_diagnostics.json`
+- `artifacts/data/mamba/horizons/{week,month}/model_dataset.parquet`
+- `artifacts/data/mamba/horizons/{week,month}/mamba_sequence_diagnostics.json`
 - `artifacts/horizons/{week,month}/hyperparams/{model}/*.json`
 - `artifacts/horizons/{week,month}/models/{model}/.../*.pkl`
 - `artifacts/horizons/{week,month}/lstm_only/strict_protocol/reports/*`
 - `artifacts/horizons/{week,month}/global_lstm/strict_protocol/reports/*`
+- `artifacts/horizons/{week,month}/global_mamba/strict_protocol/reports/*`
 - `artifacts/horizons/{week,month}/predictions/*_oof.parquet`
 - `artifacts/horizons/{week,month}/reports/*`
 - `artifacts/horizons/{week,month}/plots/*.png`
@@ -78,6 +85,19 @@ PYTHONPATH=forecasting/src pytest forecasting/tests -q
 Random split is intentionally not used. Validation is walk-forward only, and per-stock signal metrics use out-of-fold predictions.
 Signal backtests use `signal_anchor="expanding_median"` by default, so each threshold is calibrated only from past rebalance predictions for the same stock. Supported anchors are `expanding_median`, `expanding_mean` and `zero`.
 `02c_global_lstm_forecasting.ipynb` uses production defaults by default; for isolated smoke runs, set `GLOBAL_LSTM_OUTPUT_DIR`, `GLOBAL_LSTM_HORIZONS`, `GLOBAL_LSTM_N_TRIALS`, `GLOBAL_LSTM_MAX_EPOCHS`, and `GLOBAL_LSTM_ENSEMBLE_SEEDS`.
+
+## Official Mamba Setup
+
+The Mamba notebooks use the official `state-spaces/mamba` package. Install PyTorch first, then install Mamba in the same environment with build isolation disabled so the package compiles against the active CUDA-enabled PyTorch:
+
+```bash
+source /home/sapce/miniconda3/etc/profile.d/conda.sh
+conda activate torchlab
+pip install "mamba-ssm[causal-conv1d]" --no-build-isolation
+pip install -e ".[mamba]"
+```
+
+The official package targets Linux with NVIDIA GPU/CUDA. `02d_mamba_forecasting.ipynb` uses production defaults by default; for smoke runs, set `MAMBA_OUTPUT_DIR`, `MAMBA_HORIZONS`, `MAMBA_N_TRIALS`, `MAMBA_MAX_EPOCHS`, and `MAMBA_ENSEMBLE_SEEDS`.
 
 ## MLflow
 

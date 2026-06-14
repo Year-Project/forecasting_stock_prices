@@ -1,12 +1,14 @@
 from .base import BaseReturnModel, ModelSpec
 from .factory import build_model, make_pipeline
 from .lstm import LSTMReturnRegressor
+from .mamba import MambaReturnRegressor
 from .momentum import MomentumModel
 from .naive_persistence import NaivePersistenceReturnModel
 
 __all__ = [
     "BaseReturnModel",
     "LSTMReturnRegressor",
+    "MambaReturnRegressor",
     "ModelSpec",
     "MomentumModel",
     "NaivePersistenceReturnModel",

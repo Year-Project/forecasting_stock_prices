@@ -57,6 +57,10 @@ def build_model(
         from .lstm import build_lstm_model
 
         return build_lstm_model(random_state=random_state, params=model_params)
+    if model_type == "mamba":
+        from .mamba import build_mamba_model
+
+        return build_mamba_model(random_state=random_state, params=model_params)
     raise ValueError(f"Unsupported model type: {model_type}")
 
 

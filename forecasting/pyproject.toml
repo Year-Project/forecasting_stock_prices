@@ -26,6 +26,7 @@ dependencies = [
 [project.optional-dependencies]
 boosting = ["catboost", "lightgbm", "xgboost"]
 deep = ["torch>=2.0"]
+mamba = ["mamba-ssm[causal-conv1d]"]
 dev = ["ipykernel", "nbconvert", "nbformat", "pytest"]
 
 [tool.setuptools.packages.find]

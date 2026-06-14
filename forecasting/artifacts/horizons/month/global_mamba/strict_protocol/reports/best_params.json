@@ -1,0 +1,82 @@
+[
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02d_mamba_forecasting",
+    "global_mamba_run": true,
+    "ticker": "__global__",
+    "model_name": "global_mamba_stationary",
+    "best_params": {
+      "max_epochs": 120,
+      "patience": 12,
+      "device": "auto",
+      "validation_fraction": 0.2,
+      "lookback": 126,
+      "model_dim": 32,
+      "num_layers": 1,
+      "d_state": 16,
+      "d_conv": 3,
+      "expand": 2,
+      "block_dropout": 0.18037485918295204,
+      "head_dropout": 0.20868386308537676,
+      "learning_rate": 0.0010405912956569434,
+      "weight_decay": 0.004024213491547557,
+      "batch_size": 64,
+      "loss": "huber",
+      "huber_beta": 0.04,
+      "feature_clip": 3.0,
+      "target_normalization": "per_ticker",
+      "balanced_ticker_sampling": true,
+      "grad_clip_norm": 0.7860290007874633,
+      "ensemble_seeds": [
+        1,
+        7,
+        21
+      ]
+    },
+    "selected_long_threshold": 0.02,
+    "training_scope": "global_lstm_strict",
+    "global_validation_start": "2025-08-08T00:00:00",
+    "global_test_start": "2025-12-26T00:00:00"
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "training_notebook": "02d_mamba_forecasting",
+    "global_mamba_run": true,
+    "ticker": "__global__",
+    "model_name": "global_mamba_all",
+    "best_params": {
+      "max_epochs": 120,
+      "patience": 12,
+      "device": "auto",
+      "validation_fraction": 0.2,
+      "lookback": 90,
+      "model_dim": 96,
+      "num_layers": 3,
+      "d_state": 8,
+      "d_conv": 4,
+      "expand": 2,
+      "block_dropout": 0.27689757455404745,
+      "head_dropout": 0.37855601957631224,
+      "learning_rate": 0.0005354498765512394,
+      "weight_decay": 0.0036262350219146366,
+      "batch_size": 64,
+      "loss": "mse",
+      "huber_beta": 0.04,
+      "feature_clip": 8.0,
+      "target_normalization": "per_ticker",
+      "balanced_ticker_sampling": true,
+      "grad_clip_norm": 1.0964759472958379,
+      "ensemble_seeds": [
+        1,
+        7,
+        21
+      ]
+    },
+    "selected_long_threshold": 0.02,
+    "training_scope": "global_lstm_strict",
+    "global_validation_start": "2025-08-08T00:00:00",
+    "global_test_start": "2025-12-26T00:00:00"
+  }
+]
