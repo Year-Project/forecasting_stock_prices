@@ -1,0 +1,369 @@
+{
+  "mamba_all": {
+    "rows_by_ticker": [
+      {
+        "ticker": "CBOM",
+        "rows": 2742,
+        "date_start": "2015-11-09T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 2683,
+        "sequences_lookback_90": 2653,
+        "sequences_lookback_126": 2617,
+        "sequences_lookback_252": 2491
+      },
+      {
+        "ticker": "MBNK",
+        "rows": 521,
+        "date_start": "2024-09-05T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 462,
+        "sequences_lookback_90": 432,
+        "sequences_lookback_126": 396,
+        "sequences_lookback_252": 270
+      },
+      {
+        "ticker": "SBER",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 4554,
+        "sequences_lookback_90": 4524,
+        "sequences_lookback_126": 4488,
+        "sequences_lookback_252": 4362
+      },
+      {
+        "ticker": "SBERP",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 4554,
+        "sequences_lookback_90": 4524,
+        "sequences_lookback_126": 4488,
+        "sequences_lookback_252": 4362
+      },
+      {
+        "ticker": "SVCB",
+        "rows": 620,
+        "date_start": "2024-04-27T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 561,
+        "sequences_lookback_90": 531,
+        "sequences_lookback_126": 495,
+        "sequences_lookback_252": 369
+      },
+      {
+        "ticker": "T",
+        "rows": 1617,
+        "date_start": "2020-03-13T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 1558,
+        "sequences_lookback_90": 1528,
+        "sequences_lookback_126": 1492,
+        "sequences_lookback_252": 1366
+      },
+      {
+        "ticker": "VTBR",
+        "rows": 4569,
+        "date_start": "2008-02-01T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 4510,
+        "sequences_lookback_90": 4480,
+        "sequences_lookback_126": 4444,
+        "sequences_lookback_252": 4318
+      }
+    ],
+    "lookbacks": [
+      60,
+      90,
+      126,
+      252
+    ],
+    "feature_count": 275,
+    "top_feature_missingness": {
+      "mamba_upside_downside_vol_ratio_5": 0.030111427831044313,
+      "mamba_volume_abs_return_corr_126": 0.021663643430940658,
+      "mamba_volume_return_corr_126": 0.021663643430940658,
+      "mamba_log_volume_z_126": 0.02135268204197979,
+      "mamba_sign_persistence_126": 0.011712878984192796,
+      "mamba_return_mean_to_vol_126": 0.011401917595231926,
+      "mamba_realized_vol_126": 0.011401917595231926,
+      "mamba_gap_vol_126": 0.011401917595231926,
+      "mamba_overnight_vol_share_126": 0.011401917595231926,
+      "mamba_realized_skew_126": 0.011401917595231926,
+      "mamba_realized_kurt_126": 0.011401917595231926,
+      "mamba_abs_ret_z_126": 0.011401917595231926,
+      "mamba_return_trend_126": 0.011401917595231926,
+      "mamba_signed_volume_imbalance_126": 0.011401917595231926,
+      "mamba_signed_dollar_volume_imbalance_126": 0.011401917595231926,
+      "mamba_vol_60_over_126": 0.011401917595231926,
+      "mamba_negative_hit_rate_126": 0.011090956206271055,
+      "mamba_range_vol_126": 0.011090956206271055,
+      "mamba_dollar_volume_z_126": 0.011090956206271055,
+      "mamba_drawdown_from_high_126": 0.011090956206271055,
+      "mamba_intraday_vol_126": 0.011090956206271055,
+      "mamba_positive_hit_rate_126": 0.011090956206271055,
+      "mamba_upside_downside_vol_ratio_126": 0.011090956206271055,
+      "mamba_downside_vol_126": 0.011090956206271055,
+      "mamba_range_mean_to_vol_126": 0.011090956206271055,
+      "mamba_close_to_mid_range": 0.00020730759264058046,
+      "lstm_close_position": 0.00020730759264058046,
+      "ticker_onehot_VTBR": 0.0,
+      "mamba_positive_hit_rate_5": 0.0,
+      "mamba_gap_ret": 0.0
+    },
+    "target_distribution": {
+      "count": 19295,
+      "mean": 0.0027055637861326813,
+      "std": 0.11597075749790348,
+      "min": -1.1297879061365594,
+      "p25": -0.04475996184591656,
+      "median": 0.00618732638571363,
+      "p75": 0.058624176562306445,
+      "max": 0.6871579432516292
+    },
+    "recommended_scaler": "median imputation + RobustScaler fit inside each strict train split",
+    "mamba_feature_family_counts": {
+      "gap_intraday": 20,
+      "return_regime": 36,
+      "volatility_shape": 45,
+      "volume_imbalance": 0,
+      "other_mamba": 7
+    },
+    "ticker_coverage": [
+      {
+        "ticker": "CBOM",
+        "rows": 2742,
+        "date_start": "2015-11-09T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "MBNK",
+        "rows": 521,
+        "date_start": "2024-09-05T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "SBER",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "SBERP",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "SVCB",
+        "rows": 620,
+        "date_start": "2024-04-27T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "T",
+        "rows": 1617,
+        "date_start": "2020-03-13T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "VTBR",
+        "rows": 4569,
+        "date_start": "2008-02-01T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      }
+    ]
+  },
+  "mamba_stationary": {
+    "rows_by_ticker": [
+      {
+        "ticker": "CBOM",
+        "rows": 2742,
+        "date_start": "2015-11-09T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 2683,
+        "sequences_lookback_90": 2653,
+        "sequences_lookback_126": 2617,
+        "sequences_lookback_252": 2491
+      },
+      {
+        "ticker": "MBNK",
+        "rows": 521,
+        "date_start": "2024-09-05T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 462,
+        "sequences_lookback_90": 432,
+        "sequences_lookback_126": 396,
+        "sequences_lookback_252": 270
+      },
+      {
+        "ticker": "SBER",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 4554,
+        "sequences_lookback_90": 4524,
+        "sequences_lookback_126": 4488,
+        "sequences_lookback_252": 4362
+      },
+      {
+        "ticker": "SBERP",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 4554,
+        "sequences_lookback_90": 4524,
+        "sequences_lookback_126": 4488,
+        "sequences_lookback_252": 4362
+      },
+      {
+        "ticker": "SVCB",
+        "rows": 620,
+        "date_start": "2024-04-27T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 561,
+        "sequences_lookback_90": 531,
+        "sequences_lookback_126": 495,
+        "sequences_lookback_252": 369
+      },
+      {
+        "ticker": "T",
+        "rows": 1617,
+        "date_start": "2020-03-13T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 1558,
+        "sequences_lookback_90": 1528,
+        "sequences_lookback_126": 1492,
+        "sequences_lookback_252": 1366
+      },
+      {
+        "ticker": "VTBR",
+        "rows": 4569,
+        "date_start": "2008-02-01T00:00:00",
+        "date_end": "2026-05-22T00:00:00",
+        "max_feasible_lookback": 252,
+        "sequences_lookback_60": 4510,
+        "sequences_lookback_90": 4480,
+        "sequences_lookback_126": 4444,
+        "sequences_lookback_252": 4318
+      }
+    ],
+    "lookbacks": [
+      60,
+      90,
+      126,
+      252
+    ],
+    "feature_count": 258,
+    "top_feature_missingness": {
+      "mamba_upside_downside_vol_ratio_5": 0.030111427831044313,
+      "mamba_volume_abs_return_corr_126": 0.021663643430940658,
+      "mamba_volume_return_corr_126": 0.021663643430940658,
+      "mamba_log_volume_z_126": 0.02135268204197979,
+      "mamba_sign_persistence_126": 0.011712878984192796,
+      "mamba_abs_ret_z_126": 0.011401917595231926,
+      "mamba_return_mean_to_vol_126": 0.011401917595231926,
+      "mamba_realized_vol_126": 0.011401917595231926,
+      "mamba_gap_vol_126": 0.011401917595231926,
+      "mamba_overnight_vol_share_126": 0.011401917595231926,
+      "mamba_realized_skew_126": 0.011401917595231926,
+      "mamba_realized_kurt_126": 0.011401917595231926,
+      "mamba_return_trend_126": 0.011401917595231926,
+      "mamba_signed_volume_imbalance_126": 0.011401917595231926,
+      "mamba_vol_60_over_126": 0.011401917595231926,
+      "mamba_negative_hit_rate_126": 0.011090956206271055,
+      "mamba_range_mean_to_vol_126": 0.011090956206271055,
+      "mamba_drawdown_from_high_126": 0.011090956206271055,
+      "mamba_intraday_vol_126": 0.011090956206271055,
+      "mamba_positive_hit_rate_126": 0.011090956206271055,
+      "mamba_upside_downside_vol_ratio_126": 0.011090956206271055,
+      "mamba_downside_vol_126": 0.011090956206271055,
+      "mamba_range_vol_126": 0.011090956206271055,
+      "mamba_close_to_mid_range": 0.00020730759264058046,
+      "lstm_close_position": 0.00020730759264058046,
+      "ticker_onehot_T": 0.0,
+      "mamba_gap_minus_intraday": 0.0,
+      "mamba_close_ret_1": 0.0,
+      "mamba_gap_ret": 0.0,
+      "mamba_intraday_ret": 0.0
+    },
+    "target_distribution": {
+      "count": 19295,
+      "mean": 0.0027055637861326813,
+      "std": 0.11597075749790348,
+      "min": -1.1297879061365594,
+      "p25": -0.04475996184591656,
+      "median": 0.00618732638571363,
+      "p75": 0.058624176562306445,
+      "max": 0.6871579432516292
+    },
+    "recommended_scaler": "median imputation + RobustScaler fit inside each strict train split",
+    "mamba_feature_family_counts": {
+      "gap_intraday": 20,
+      "return_regime": 32,
+      "volatility_shape": 41,
+      "volume_imbalance": 0,
+      "other_mamba": 7
+    },
+    "ticker_coverage": [
+      {
+        "ticker": "CBOM",
+        "rows": 2742,
+        "date_start": "2015-11-09T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "MBNK",
+        "rows": 521,
+        "date_start": "2024-09-05T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "SBER",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "SBERP",
+        "rows": 4613,
+        "date_start": "2007-11-28T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "SVCB",
+        "rows": 620,
+        "date_start": "2024-04-27T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "T",
+        "rows": 1617,
+        "date_start": "2020-03-13T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      },
+      {
+        "ticker": "VTBR",
+        "rows": 4569,
+        "date_start": "2008-02-01T00:00:00",
+        "date_end": "2026-05-22T00:00:00"
+      }
+    ]
+  },
+  "horizon_name": "month",
+  "horizon": 21,
+  "target_column": "target_return_21_next_open"
+}

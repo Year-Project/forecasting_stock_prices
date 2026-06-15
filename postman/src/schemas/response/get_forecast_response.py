@@ -7,5 +7,7 @@ class GetForecastResponse(BaseModel):
     time_frame: str
     telegram_id: int | None = None
     forecast_price: float | None = None
+    forecast_return: float | None = None
     forecast_confidence: float | None = None
     forecast_plot: str | None = None
+    model: str | None = None

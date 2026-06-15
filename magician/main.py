@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
 
+from kafka.topics import ensure_kafka_topics
 from magician.dependencies import set_scavenger_client
 from magician.handlers import forecast_handler
 from magician.schemas.request.get_forecast_request import GetForecastRequest
@@ -60,10 +61,11 @@ async def _consume_forecast_requests(
                 forecast_period=response.forecast_period,
                 time_frame=response.time_frame,
                 forecast_price=response.forecast_price,
+                forecast_return=response.forecast_return,
                 forecast_confidence=response.forecast_confidence,
                 forecast_plot=response.forecast_plot,
                 provide_plot=payload.provide_plot,
-                model=MODEL_NAME,
+                model=response.model or MODEL_NAME,
                 status=ForecastRequestStatus.COMPLETED,
                 error=None,
             )
@@ -94,6 +96,12 @@ async def lifespan(app: FastAPI):
 
     if not KAFKA_BOOTSTRAP_SERVERS or not KAFKA_FORECAST_REQUEST_TOPIC or not KAFKA_FORECAST_RESPONSE_TOPIC:
         raise RuntimeError("Kafka configuration is missing for Magician service.")
+
+    await ensure_kafka_topics(
+        KAFKA_BOOTSTRAP_SERVERS,
+        KAFKA_SECURITY_PROTOCOL,
+        [KAFKA_FORECAST_REQUEST_TOPIC, KAFKA_FORECAST_RESPONSE_TOPIC],
+    )
 
     producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, security_protocol=KAFKA_SECURITY_PROTOCOL)
     consumer = AIOKafkaConsumer(

@@ -6,8 +6,8 @@ services:
     container_name: magician_service
     restart: always
     env_file:
-      - .env
-      - ../.env
+      - path: ../.env
+        required: false
     depends_on:
       kafka-1:
         condition: service_healthy
@@ -17,6 +17,13 @@ services:
         condition: service_healthy
       scavenger_service:
         condition: service_started
+      mlflow:
+        condition: service_started
+    environment:
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      ML_FORECAST_ENABLED: ${ML_FORECAST_ENABLED:-true}
+      MLFLOW_WEEK_MODEL_URI: ${MLFLOW_WEEK_MODEL_URI:-models:/stock_return_forecaster_week@prd}
+      MLFLOW_MONTH_MODEL_URI: ${MLFLOW_MONTH_MODEL_URI:-models:/stock_return_forecaster_month@prd}
     ports:
       - 8002:8000
     networks:

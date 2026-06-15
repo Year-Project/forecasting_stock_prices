@@ -8,4 +8,9 @@ fastapi~=0.121.3
 numpy~=2.2.3
 statsmodels~=0.14.1
 aiokafka~=0.10.0
+scikit-learn==1.8.0
 PyJWT~=2.9.0
+pandas~=2.3.3
+mlflow==3.13.0
+cloudpickle==3.1.2
+mamba-ssm[causal-conv1d]

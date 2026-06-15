@@ -7,6 +7,9 @@ WORKDIR /home/magician_admin/app
 COPY magician/requirements.txt requirements.txt
 RUN pip3 --no-cache-dir install -r requirements.txt
 
+COPY forecasting/pyproject.toml forecasting/README.md ./forecasting/
+COPY forecasting/src ./forecasting/src
+
 COPY db ./db
 COPY dependencies ./dependencies
 COPY exceptions ./exceptions
@@ -22,9 +25,8 @@ RUN mkdir -p ./magician/logs && chown -R magician_admin:magician_admin ./magicia
 
 RUN chmod +x ./magician/entrypoint.sh
 
-RUN apt-get update && rm -rf /var/lib/apt/lists/*
-
 ENV PYTHONPATH=/home/magician_admin/app:$PYTHONPATH
+ENV PYTHONPATH=/home/magician_admin/app/forecasting/src:/home/magician_admin/app
 
 USER magician_admin
 

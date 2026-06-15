@@ -1,0 +1,78 @@
+[
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "training_notebook": "02c_global_lstm_forecasting",
+    "global_lstm_run": true,
+    "ticker": "__global__",
+    "model_name": "global_lstm_all",
+    "best_params": {
+      "max_epochs": 120,
+      "patience": 12,
+      "device": "auto",
+      "validation_fraction": 0.2,
+      "lookback": 90,
+      "hidden_size": 64,
+      "num_layers": 1,
+      "input_projection_size": 64,
+      "lstm_dropout": 0.2919852166811433,
+      "head_dropout": 0.10010484492188515,
+      "learning_rate": 0.00048367646367972173,
+      "weight_decay": 0.0007137252841686575,
+      "batch_size": 64,
+      "loss": "smooth_l1",
+      "huber_beta": 0.04,
+      "feature_clip": 8.0,
+      "target_normalization": "per_ticker",
+      "balanced_ticker_sampling": true,
+      "grad_clip_norm": 1.7400360983290724,
+      "ensemble_seeds": [
+        1,
+        7,
+        21
+      ]
+    },
+    "selected_long_threshold": 0.0025,
+    "training_scope": "global_lstm_strict",
+    "global_validation_start": "2025-08-26T00:00:00",
+    "global_test_start": "2026-01-19T00:00:00"
+  },
+  {
+    "horizon_name": "week",
+    "horizon": 5,
+    "training_notebook": "02c_global_lstm_forecasting",
+    "global_lstm_run": true,
+    "ticker": "__global__",
+    "model_name": "global_lstm_stationary",
+    "best_params": {
+      "max_epochs": 120,
+      "patience": 12,
+      "device": "auto",
+      "validation_fraction": 0.2,
+      "lookback": 90,
+      "hidden_size": 96,
+      "num_layers": 2,
+      "input_projection_size": 64,
+      "lstm_dropout": 0.23188279952389368,
+      "head_dropout": 0.2246844304357644,
+      "learning_rate": 0.0004749239763680409,
+      "weight_decay": 0.00043664735929796326,
+      "batch_size": 128,
+      "loss": "smooth_l1",
+      "huber_beta": 0.02,
+      "feature_clip": 8.0,
+      "target_normalization": "per_ticker",
+      "balanced_ticker_sampling": true,
+      "grad_clip_norm": 1.0351299900403839,
+      "ensemble_seeds": [
+        1,
+        7,
+        21
+      ]
+    },
+    "selected_long_threshold": 0.01,
+    "training_scope": "global_lstm_strict",
+    "global_validation_start": "2025-08-26T00:00:00",
+    "global_test_start": "2026-01-19T00:00:00"
+  }
+]

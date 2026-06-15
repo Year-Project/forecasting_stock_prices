@@ -6,5 +6,7 @@ class GetForecastResponse(BaseModel):
     forecast_period: int
     time_frame: str
     forecast_price: float
+    forecast_return: float | None = None
     forecast_confidence: float | None = None
     forecast_plot: str | None = None
+    model: str | None = None

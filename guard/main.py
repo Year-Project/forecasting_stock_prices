@@ -9,6 +9,7 @@ from fastapi import FastAPI
 import uvicorn
 
 from dependencies.dependencies import db_registry
+from kafka.topics import ensure_kafka_topics
 from guard.src.dependencies import set_admin_secret_producer
 from guard.src.handlers.v1 import auth_handler
 from guard.src.handlers.v1 import internal_admin_handler
@@ -36,6 +37,12 @@ async def lifespan(app: FastAPI):
     )
     db_registry.register("auth", os.getenv("DATABASE_URL"))
 
+    await ensure_kafka_topics(
+        KAFKA_BOOTSTRAP_SERVERS,
+        KAFKA_SECURITY_PROTOCOL,
+        [KAFKA_ADMIN_SECRET_TOPIC],
+    )
+
     producer = AIOKafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, security_protocol=KAFKA_SECURITY_PROTOCOL)
     await producer.start()
 
@@ -57,4 +64,3 @@ app.add_exception_handler(BaseServiceException, service_exception_handler)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
-

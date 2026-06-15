@@ -1,0 +1,359 @@
+[
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_20"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 0.25362786627130984,
+      "solver": "lsqr",
+      "fit_intercept": true,
+      "tol": 0.00030229447295611746
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "CBOM",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 240,
+      "learning_rate": 0.0016418997442995485,
+      "l2_regularization": 0.03135122356091511,
+      "max_leaf_nodes": 20,
+      "max_depth": 3,
+      "min_samples_leaf": 10,
+      "max_bins": 39
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "ret_lag_5"
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 0.0011774354516010425,
+      "solver": "svd",
+      "fit_intercept": false,
+      "tol": 0.00040425590812245
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "MBNK",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 229,
+      "learning_rate": 0.0011791933276905236,
+      "l2_regularization": 0.029053033605605058,
+      "max_leaf_nodes": 28,
+      "max_depth": 3,
+      "min_samples_leaf": 100,
+      "max_bins": 159
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "ret_lag_20"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 96882.14501930015,
+      "solver": "svd",
+      "fit_intercept": true,
+      "tol": 1.0705158910671391e-06
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBER",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 342,
+      "learning_rate": 0.002926954039059227,
+      "l2_regularization": 0.005054642922723324,
+      "max_leaf_nodes": 3,
+      "max_depth": 6,
+      "min_samples_leaf": 56,
+      "max_bins": 95
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "ret_lag_20"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 97151.46815256494,
+      "solver": "svd",
+      "fit_intercept": true,
+      "tol": 1.9871309737988194e-05
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SBERP",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 84,
+      "learning_rate": 0.014684664780207869,
+      "l2_regularization": 3.418955517529353,
+      "max_leaf_nodes": 3,
+      "max_depth": 4,
+      "min_samples_leaf": 83,
+      "max_bins": 37
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_20"
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 1.207543357730441,
+      "solver": "lsqr",
+      "fit_intercept": false,
+      "tol": 2.8604145550838925e-05
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "SVCB",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 248,
+      "learning_rate": 0.004902563654464592,
+      "l2_regularization": 0.12120490115998238,
+      "max_leaf_nodes": 17,
+      "max_depth": 4,
+      "min_samples_leaf": 49,
+      "max_bins": 154
+    },
+    "split_quality": "limited_history",
+    "limited_history": true
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "rolling_ret_mean_20"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 96794.94121956058,
+      "solver": "auto",
+      "fit_intercept": true,
+      "tol": 0.0004485686940766272
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "T",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 82,
+      "learning_rate": 0.0015712830857935193,
+      "l2_regularization": 0.0014850017627030794,
+      "max_leaf_nodes": 5,
+      "max_depth": 6,
+      "min_samples_leaf": 79,
+      "max_bins": 55
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "naive_persistence",
+    "best_params": {},
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "momentum",
+    "best_params": {
+      "column": "ret_lag_1"
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "ridge",
+    "best_params": {
+      "alpha": 0.0014457177521722047,
+      "solver": "svd",
+      "fit_intercept": true,
+      "tol": 0.0013033297640466985
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  },
+  {
+    "horizon_name": "month",
+    "horizon": 21,
+    "ticker": "VTBR",
+    "model_name": "hist_gradient_boosting",
+    "best_params": {
+      "max_iter": 330,
+      "learning_rate": 0.025536620525033207,
+      "l2_regularization": 0.007625152827993272,
+      "max_leaf_nodes": 3,
+      "max_depth": null,
+      "min_samples_leaf": 70,
+      "max_bins": 211
+    },
+    "split_quality": "mature",
+    "limited_history": false
+  }
+]

@@ -16,10 +16,12 @@ async def start_forecast_consumer(bot: Bot, bootstrap: str, topic: str):
     try:
         async for msg in consumer:
             payload = ForecastPublishMessage.model_validate_json(msg.value)
+            return_line = f"Доходность: {payload.forecast_return}\n" if payload.forecast_return is not None else ""
             await bot.send_message(payload.telegram_id, f"📈 Прогноз для {payload.isin}\n"
                                                         f"(timeframe = {payload.time_frame} |"
                                                         f" горизонт прогноза = {payload.forecast_period})\n"
-                                                        f"Цена: {payload.forecast_price}\n")
+                                                        f"Цена: {payload.forecast_price}\n"
+                                                        f"{return_line}")
     finally:
         await consumer.stop()
 

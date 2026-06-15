@@ -1,0 +1,111 @@
+# Stock Profit Forecast
+
+Notebook-based leakage-safe research pipeline for forecasting future stock log returns from OHLCV data and evaluating predictions per stock with walk-forward validation.
+
+This is research code, not financial advice. The model forecasts future returns, not guaranteed profit.
+
+## Notebooks
+
+Run notebooks in order:
+
+1. `notebooks/01_eda.ipynb`
+   Loads and validates raw OHLCV data, builds leakage-safe features and future log-return target, then saves prepared data artifacts.
+2. `notebooks/01b_lstm_eda.ipynb`
+   Adds leakage-safe LSTM sequence features and sequence diagnostics for week and month horizons.
+3. `notebooks/02_table_model_forecasting.ipynb`
+   Loads EDA artifacts, tunes table models with Optuna, trains week and month horizon models, caches best hyperparameters and saves out-of-fold predictions, metrics and fold models.
+4. `notebooks/02b_lstm_forecasting.ipynb`
+   Trains per-ticker/per-horizon LSTMs with strict purged validation, capped limited-history search spaces, and post-selection seed ensembles.
+5. `notebooks/01c_global_lstm_eda.ipynb`
+   Builds pooled/global LSTM artifacts with ticker one-hot features, stationary feature-set candidates, and all-series sequence diagnostics.
+6. `notebooks/02c_global_lstm_forecasting.ipynb`
+   Trains one global LSTM per horizon across all available ticker series with calendar-global purging, validation profit/risk threshold selection, and panel signal metrics.
+7. `notebooks/01d_mamba_eda.ipynb`
+   Builds pooled/global Mamba artifacts with additional regime, gap/intraday, volatility-shape, and volume-imbalance sequence features.
+8. `notebooks/02d_mamba_forecasting.ipynb`
+   Trains official `mamba-ssm` global Mamba models per horizon with the same strict global protocol used by global LSTM.
+9. `notebooks/03_model_comparison.ipynb`
+   Loads trained horizon artifacts, compares models per stock, runs independent per-stock signal backtests and saves final comparison reports and plots for each horizon.
+
+## Data
+
+The notebooks currently point to the existing repository data:
+
+```text
+../ML/gen/historical_data_1d.csv
+```
+
+Expected raw OHLCV fields are mapped in `01_eda.ipynb`:
+
+```text
+begin,name,open,high,low,close,volume
+```
+
+The internal clean schema is:
+
+```text
+date,ticker,open,high,low,close,volume
+```
+
+## Artifacts
+
+The notebook chain writes:
+
+- `artifacts/data/clean_ohlcv.parquet`
+- `artifacts/data/model_dataset.parquet`
+- `artifacts/data/feature_columns.json`
+- `artifacts/data/horizons/{week,month}/model_dataset.parquet`
+- `artifacts/data/horizons/{week,month}/feature_columns.json`
+- `artifacts/data/lstm/horizons/{week,month}/model_dataset.parquet`
+- `artifacts/data/lstm/horizons/{week,month}/sequence_diagnostics.json`
+- `artifacts/data/global_lstm/horizons/{week,month}/model_dataset.parquet`
+- `artifacts/data/global_lstm/horizons/{week,month}/global_sequence_diagnostics.json`
+- `artifacts/data/mamba/horizons/{week,month}/model_dataset.parquet`
+- `artifacts/data/mamba/horizons/{week,month}/mamba_sequence_diagnostics.json`
+- `artifacts/horizons/{week,month}/hyperparams/{model}/*.json`
+- `artifacts/horizons/{week,month}/models/{model}/.../*.pkl`
+- `artifacts/horizons/{week,month}/lstm_only/strict_protocol/reports/*`
+- `artifacts/horizons/{week,month}/global_lstm/strict_protocol/reports/*`
+- `artifacts/horizons/{week,month}/global_mamba/strict_protocol/reports/*`
+- `artifacts/horizons/{week,month}/predictions/*_oof.parquet`
+- `artifacts/horizons/{week,month}/reports/*`
+- `artifacts/horizons/{week,month}/plots/*.png`
+- `artifacts/horizons/{week,month}/plots/tickers/*.png`
+
+## Run Checks
+
+From the repository root:
+
+```bash
+source /home/sapce/miniconda3/etc/profile.d/conda.sh
+conda activate torchlab
+PYTHONPATH=forecasting/src pytest forecasting/tests -q
+```
+
+Random split is intentionally not used. Validation is walk-forward only, and per-stock signal metrics use out-of-fold predictions.
+Signal backtests use `signal_anchor="expanding_median"` by default, so each threshold is calibrated only from past rebalance predictions for the same stock. Supported anchors are `expanding_median`, `expanding_mean` and `zero`.
+`02c_global_lstm_forecasting.ipynb` uses production defaults by default; for isolated smoke runs, set `GLOBAL_LSTM_OUTPUT_DIR`, `GLOBAL_LSTM_HORIZONS`, `GLOBAL_LSTM_N_TRIALS`, `GLOBAL_LSTM_MAX_EPOCHS`, and `GLOBAL_LSTM_ENSEMBLE_SEEDS`.
+
+## Official Mamba Setup
+
+The Mamba notebooks use the official `state-spaces/mamba` package. Install PyTorch first, then install Mamba in the same environment with build isolation disabled so the package compiles against the active CUDA-enabled PyTorch:
+
+```bash
+source /home/sapce/miniconda3/etc/profile.d/conda.sh
+conda activate torchlab
+pip install "mamba-ssm[causal-conv1d]" --no-build-isolation
+pip install -e ".[mamba]"
+```
+
+The official package targets Linux with NVIDIA GPU/CUDA. `02d_mamba_forecasting.ipynb` uses production defaults by default; for smoke runs, set `MAMBA_OUTPUT_DIR`, `MAMBA_HORIZONS`, `MAMBA_N_TRIALS`, `MAMBA_MAX_EPOCHS`, and `MAMBA_ENSEMBLE_SEEDS`.
+
+## MLflow
+
+After strict-protocol artifacts exist, register them and publish training results to MLflow:
+
+```bash
+MLFLOW_TRACKING_URI=http://localhost:5000 \
+stock-forecast-train-register-mlflow --artifact-root artifacts --skip-training
+```
+
+The command logs parent runs, per-ticker/model nested runs, metrics tables, report artifacts, model artifacts, and registered pyfunc models for the week and month horizons.
