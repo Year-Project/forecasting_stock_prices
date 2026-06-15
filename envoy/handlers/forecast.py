@@ -13,20 +13,15 @@ from aiogram.types import CallbackQuery
 class ForecastFSM(StatesGroup):
     waiting_isin = State()
     waiting_period = State()
-    waiting_timeframe = State()
     waiting_plot = State()
 
 
-def timeframe_keyboard():
+def period_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="1m", callback_data="tf:1m"),
-                InlineKeyboardButton(text="10m", callback_data="tf:10m"),
-                InlineKeyboardButton(text="1h", callback_data="tf:1h"),
-                InlineKeyboardButton(text="1d", callback_data="tf:1d"),
-                InlineKeyboardButton(text="1w", callback_data="tf:1w"),
-                InlineKeyboardButton(text="1mo", callback_data="tf:1mo"),
+                InlineKeyboardButton(text="5d", callback_data="horizon:5d"),
+                InlineKeyboardButton(text="21d", callback_data="horizon:21d"),
             ]
         ]
     )
@@ -58,30 +53,16 @@ def setup(forecast_client):
         isin = message.text.strip().upper()
 
         await state.update_data(isin=isin)
-        await message.answer("📆 Введите период прогнозирования:")
+        await message.answer("📆 Выберите период прогнозирования:", reply_markup=period_keyboard())
         await state.set_state(ForecastFSM.waiting_period)
 
-    @router.message(ForecastFSM.waiting_period)
-    async def forecast_period(message: Message, state: FSMContext):
-        try:
-            period = int(message.text)
-        except ValueError:
-            await message.answer("❌ Введите целое число!")
-            return
-
+    @router.callback_query(ForecastFSM.waiting_period, lambda c: c.data.startswith("horizon:"))
+    async def forecast_period(callback: CallbackQuery, state: FSMContext):
+        period = int(callback.data.split(":")[1].replace('d', ''))
         await state.update_data(forecast_period=period)
-        await message.answer("⏱ Выберите таймфрейм:", reply_markup=timeframe_keyboard())
-        await state.set_state(ForecastFSM.waiting_timeframe)
-
-    @router.callback_query(ForecastFSM.waiting_timeframe, lambda c: c.data.startswith("tf:"))
-    async def forecast_timeframe(callback: CallbackQuery, state: FSMContext):
-        tf = callback.data.split(":")[1]
-
-        await state.update_data(time_frame=tf)
-
-        await callback.message.answer("📈 Нужен график?", reply_markup=plot_keyboard())
         await state.set_state(ForecastFSM.waiting_plot)
         await callback.answer()
+        await callback.message.answer("📈 Нужен график?", reply_markup=plot_keyboard())
 
     @router.callback_query(ForecastFSM.waiting_plot, lambda c: c.data.startswith("plot:"))
     async def forecast_plot(callback: CallbackQuery, state: FSMContext):
@@ -93,7 +74,7 @@ def setup(forecast_client):
         request = {
             "isin": data["isin"],
             "forecast_period": data["forecast_period"],
-            "time_frame": data["time_frame"],
+            "time_frame": '1d',
             "provide_plot": provide_plot,
         }
 

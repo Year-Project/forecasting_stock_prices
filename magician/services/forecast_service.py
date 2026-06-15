@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+from stock_forecast.mamba_features import make_mamba_features, get_mamba_feature_columns
 
 from magician.dependencies import get_scavenger_client
 from magician.schemas.request.get_forecast_request import GetForecastRequest
@@ -29,6 +30,45 @@ class ForecastService:
         self._week_model_uri = os.getenv("MLFLOW_WEEK_MODEL_URI", "models:/stock_return_forecaster_week@prd")
         self._month_model_uri = os.getenv("MLFLOW_MONTH_MODEL_URI", "models:/stock_return_forecaster_month@prd")
         self._ml_models: dict[str, Any] = {}
+        self._feature_cols_cache: dict[str, list[str]] = {}
+        self._ml_pipelines: dict[str, Any] = {}
+
+    def _prepare_mamba_input(self, history: list[Candle]) -> tuple[pd.DataFrame, list[str]]:
+        df = self._candles_to_model_input(history)
+
+        df = make_mamba_features(df)
+
+        feature_cols = get_mamba_feature_columns(df)
+
+        df = df.sort_values(["ticker", "date"])
+        return df, feature_cols
+
+    def _mamba_predict(self, history: list[Candle], model_uri: str) -> tuple[float, str]:
+        model = self._load_ml_model(model_uri)
+
+        df, feature_cols = self._prepare_mamba_input(history)
+
+        df = df.dropna().reset_index(drop=True)
+
+        model_input = df[["date", "ticker", *feature_cols]]
+
+        prediction = model.predict(model_input)
+
+        if not isinstance(prediction, pd.DataFrame):
+            prediction = pd.DataFrame(prediction)
+
+        if prediction.empty or "forecast_return" not in prediction.columns:
+            raise ValueError("Mamba model did not return forecast_return")
+
+        row = prediction.iloc[0]
+
+        forecast_return = float(row["forecast_return"])
+        ticker = str(row.get("ticker", df["ticker"].iloc[-1]))
+        model_name = str(row.get("model_name", "mamba"))
+
+        label = f"{model_uri}:{model_name}:{ticker}"
+
+        return forecast_return, label
 
     async def get_forecast(self, request: GetForecastRequest) -> GetForecastResponse:
         interval = self._time_frame_to_interval(request.time_frame)
@@ -38,8 +78,14 @@ class ForecastService:
         model_uri = self._model_uri_for_request(interval, request.forecast_period)
         if model_uri is not None:
             try:
-                forecast_return, model_label = self._ml_return_forecast(candles.candles, model_uri)
-                forecast_price = self._last_observed_price(candles.candles) * float(np.exp(forecast_return))
+                forecast_return, model_label = self._mamba_predict(
+                    candles.candles,
+                    model_uri
+                )
+
+                last_price = self._last_observed_price(candles.candles)
+                forecast_price = last_price * float(np.exp(forecast_return))
+
                 return GetForecastResponse(
                     isin=request.isin,
                     forecast_period=request.forecast_period,
@@ -50,8 +96,12 @@ class ForecastService:
                     forecast_plot=None,
                     model=model_label,
                 )
+
             except Exception as exc:
-                logger.exception("MLflow forecast failed; falling back to auto_arima", extra={"fallback_reason": str(exc)})
+                logger.exception(
+                    "Mamba forecast failed; falling back to SARIMAX",
+                    extra={"fallback_reason": str(exc)},
+                )
 
         forecast_price = self._auto_arima_forecast(candles.candles, request.forecast_period)
 

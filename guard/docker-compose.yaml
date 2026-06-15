@@ -19,8 +19,8 @@ services:
     container_name: guard_service
     restart: always
     env_file:
-      - path: ../.env
-        required: false
+      - ../.env
+      -  ./.env
     depends_on:
       guard_db:
         condition: service_started
