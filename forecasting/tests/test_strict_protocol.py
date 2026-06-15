@@ -346,6 +346,13 @@ def test_model_comparison_notebook_uses_strict_artifacts_and_full_metric_compari
     assert '"test_smape"' in notebook
     assert "build_all_horizon_test_metrics_table" in notebook
     assert "all_horizon_test_metrics.parquet" in notebook
+    assert "Final Model Comparison Ranking" in notebook
+    assert "build_final_model_comparison_ranking" in notebook
+    assert "final_model_comparison_ranking.parquet" in notebook
+    assert "model_rank" in notebook
+    assert '("test_sharpe", False)' in notebook
+    assert '("mae", True)' in notebook
+    assert '("smape", True)' in notebook
     assert 'for metric_col in ["mae", "mse", "rmse", "smape"]' in notebook
     assert '"test_n_obs"' in notebook
     assert '"mae"' in notebook
